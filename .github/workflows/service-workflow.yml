@@ -18,13 +18,7 @@ on:
     inputs:
       environment:
         required: true
-        type: choice
-        options:
-          - Feature
-          - Development
-          - QA
-          - UAT
-          - Production
+        type: string
       service-name:
         required: true
         type: string
