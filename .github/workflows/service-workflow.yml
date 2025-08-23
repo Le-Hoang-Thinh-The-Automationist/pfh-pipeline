@@ -72,7 +72,9 @@ jobs:
     runs-on: ubuntu-latest
     if: 
       ${{ inputs.environment != 'Feature' }}
-    needs: build-test
+    needs: 
+      - source-validation
+      - build-test
     steps:
       # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.3]: Integrates with 'container scanning'
       # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.2]: 
