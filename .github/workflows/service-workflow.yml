@@ -73,6 +73,8 @@ jobs:
   # 🔐 Stage 3: Security & Compliance Gate
   compliance-check:
     runs-on: ubuntu-latest
+    if: 
+      ${{ inputs.environment != 'Feature' }}
     needs: build-test
     steps:
       # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.3]: Integrates with 'container scanning'
@@ -102,6 +104,8 @@ jobs:
   # 📦 Stage 4: Artifact Management
   artifact-handling:
     runs-on: ubuntu-latest
+    if: 
+      ${{ inputs.environment != 'Feature' }}
     needs: compliance-check
     steps:
       - name: Push Docker Image to Registry
@@ -116,6 +120,8 @@ jobs:
   # 🚀 Stage 5: Deploy & Release
   deploy:
     runs-on: ubuntu-latest
+    if: 
+      ${{ inputs.environment != 'Feature' }}
     needs: artifact-handling
     steps:
       - name: Push Docker Image to Registry
@@ -127,6 +133,8 @@ jobs:
   # 📊 Stage 6: Monitor & Feedback
   monitor:
     runs-on: ubuntu-latest
+    if: 
+      ${{ inputs.environment != 'Feature' }}
     needs: deploy
     steps:
       - name: Post-deployment checks
