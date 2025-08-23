@@ -1,10 +1,23 @@
 name: Service CI/CD Pipeline
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: choice
+        options:
+          - Feature
+          - Development
+          - QA
+          - UAT
+          - Production        
+      service-name:
+        required: true
+        type: string
+    secrets:
+      deploy_token:
+        required: true
 
 # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.1]: All microservices will use this workflow 
 jobs:
@@ -56,16 +69,24 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-test
     steps:
-      # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.2]: Check for vunerable dependencies
-      # by apply checking for Docker SBOM and generate SBOM report for auditing
+      # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.3]: Integrates with 'container scanning'
+      # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.2]: 
+      #     Check for vunerable dependencies by apply checking for Docker SBOM and generate
+      #     SBOM report for security analyzing and auditing
       - name: Docker Image Scanning
         run:  echo "Docker Image Scanning"
         
       - name: Policy enforcement
         run: echo "Run OPA or Sentinel policies"
 
+      # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.7]: 
+      #     Generates compliance reports for SOX, PCI-DSS, and regulatory audits
       - name: Audit logging
         run: echo "Log evidence for compliance"
+
+      # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.3]: Integrates 'signs images with cryptographic signatures'
+      - name: Sign Docker images
+        run: echo "Sign Docker images with cryptographic signatures before push them to Registry"
 
       - name: Manual approval (if needed)
         uses: hmarr/auto-approve-action@v3
@@ -80,9 +101,11 @@ jobs:
       - name: Push Docker Image to Registry
         run: echo "Push Docker Image to Registry"
 
-      - name: Push Docker Image to Registry
-        run: echo "Push Docker Image to Registry" 
+      - name: Save Test report to Artifact
+        run: echo "Save Test report to Artifact" 
 
+      - name: Save Security Audit log to Artifact
+        run: echo "Save Security Audit log to Artifact" 
 
   # 🚀 Stage 5: Deploy & Release
   deploy:
@@ -93,7 +116,7 @@ jobs:
         run: echo "Push Docker Image to Registry" 
 
       - name: Deploy to selected environment
-        run: echo "Run deployment script or IaC tool"
+        run: echo "Run deployment script"
 
   # 📊 Stage 6: Monitor & Feedback
   monitor:
