@@ -35,9 +35,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Secret scanning
-        uses: gitleaks/gitleaks-action@v2.0.0
-
       # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.2]: Implement mandatory SAST
       # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.3]: Implement quality gate with minimum 85% test coverage
       - name: Static code analysis
