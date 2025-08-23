@@ -1,6 +1,19 @@
 name: Service CI/CD Pipeline
-
 on:
+  # For testing purpose
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Choose an environment for testing
+        required: true
+        type: choice
+        options:
+          - Feature
+          - Development
+          - QA
+          - UAT
+          - Production
+
   workflow_call:
     inputs:
       environment:
@@ -11,7 +24,7 @@ on:
           - Development
           - QA
           - UAT
-          - Production        
+          - Production
       service-name:
         required: true
         type: string
@@ -41,7 +54,6 @@ jobs:
   # 🔍 Stage 2: Build & Compile & Testing
   build-test:
     runs-on: ubuntu-latest
-    needs: source-validation
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
