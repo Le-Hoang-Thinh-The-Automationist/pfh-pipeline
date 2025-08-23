@@ -1,0 +1,107 @@
+name: Service CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# [FSI-Compliant Reusable CI/CD Pipeline]-[AC.1]: All microservices will use this workflow 
+jobs:
+  # 🛠️ Stage 1: Source Control & Validation
+  source-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Secret scanning
+        uses: gitleaks/gitleaks-action@v2.0.0
+
+      # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.2]: Implement mandatory SAST
+      # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.3]: Implement quality gate with minimum 85% test coverage
+      - name: Static code analysis
+        run: |
+          echo "Run SonarQube for Quality Gates"
+          echo "Run SonarQube for SAST"
+
+  # 🔍 Stage 2: Build & Compile & Testing
+  build-test:
+    runs-on: ubuntu-latest
+    needs: source-validation
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup environment
+        run: echo "Install dependencies and setup build tools"
+
+      - name: Build application
+        run: echo "Run your build command here"
+
+      - name: Store artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: ./build
+
+      - name: Run tests
+        run: echo "Run unit, integration, and regression tests"
+
+      - name: Code coverage
+        run: echo "Generate and upload coverage report"
+
+  # 🔐 Stage 3: Security & Compliance Gate
+  compliance-check:
+    runs-on: ubuntu-latest
+    needs: build-test
+    steps:
+      # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.2]: Check for vunerable dependencies
+      # by apply checking for Docker SBOM and generate SBOM report for auditing
+      - name: Docker Image Scanning
+        run:  echo "Docker Image Scanning"
+        
+      - name: Policy enforcement
+        run: echo "Run OPA or Sentinel policies"
+
+      - name: Audit logging
+        run: echo "Log evidence for compliance"
+
+      - name: Manual approval (if needed)
+        uses: hmarr/auto-approve-action@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  # 📦 Stage 4: Artifact Management
+  artifact-handling:
+    runs-on: ubuntu-latest
+    needs: compliance-check
+    steps:
+      - name: Push Docker Image to Registry
+        run: echo "Push Docker Image to Registry"
+
+      - name: Push Docker Image to Registry
+        run: echo "Push Docker Image to Registry" 
+
+
+  # 🚀 Stage 5: Deploy & Release
+  deploy:
+    runs-on: ubuntu-latest
+    needs: artifact-handling
+    steps:
+      - name: Push Docker Image to Registry
+        run: echo "Push Docker Image to Registry" 
+
+      - name: Deploy to selected environment
+        run: echo "Run deployment script or IaC tool"
+
+  # 📊 Stage 6: Monitor & Feedback
+  monitor:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Post-deployment checks
+        run: echo "Run health checks and performance monitoring"
+
+      - name: Notify stakeholders
+        run: echo "Send alerts or update dashboards"

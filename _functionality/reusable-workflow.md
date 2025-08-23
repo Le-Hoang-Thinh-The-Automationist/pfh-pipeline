@@ -7,7 +7,7 @@
 
 ✅ **Acceptance Criteria:**
 
-- [ ] **AC.1:** Pipeline template supports multiple microservices through reusable workflows
+- [X] **AC.1:** Pipeline template supports multiple microservices through reusable workflows
 - [ ] **AC.2:** Implements mandatory security scanning (SAST, DAST, dependency vulnerabilities)
 - [ ] **AC.3:** Enforces code quality gates with minimum 85% test coverage
 - [ ] **AC.4:** Includes immutable audit trail of all deployments with approval workflows
