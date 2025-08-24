@@ -1,40 +1,5 @@
 name: Build & Test Stage
 
-# ## **User Story: Automated Build & Test Execution**
-
-# * **As a** developer
-# * **I want** automated build and test execution triggered on every code commit
-# * **So that** I get fast feedback on code quality and can fix issues immediately
-
-# ✅ **Acceptance Criteria:**
-
-# - [ ] **AC.1:** Build triggers automatically within 30 seconds of code push
-# - [ ] **AC.2:** Containerized build environment ensures consistent results across all environments
-# - [ ] **AC.3:** Build completes within 5 minutes to maintain fast feedback loops
-# - [ ] **AC.4:** Failed builds immediately notify the developer via preferred channel (Slack/email)
-# - [ ] **AC.5:** Build logs are easily accessible and searchable for troubleshooting
-# - [ ] **AC.6:** Build artifacts are automatically versioned with semantic versioning + Git SHA
-
-# ---
-
-# ## **User Story: Parallel Test Suite Execution**
-
-# * **As a** developer
-# * **I want** test suites to run in parallel with fail-fast behavior
-# * **So that** I minimize cycle time and get rapid feedback on test failures
-
-# ✅ **Acceptance Criteria:**
-
-# - [ ] **AC.1:** Unit tests, integration tests, and contract tests execute in parallel
-# - [ ] **AC.2:** Test execution stops immediately on first critical failure (fail-fast)
-# - [ ] **AC.3:** Test results available within 8 minutes of build start
-# - [ ] **AC.4:** Flaky test detection automatically retries unstable tests up to 3 times
-# - [ ] **AC.5:** Test execution time trends tracked to identify performance degradation
-# - [ ] **AC.6:** Test reports include detailed failure analysis and stack traces
-
-# ---
-
-
 on:
   # [Automated Build & Test Execution]-[AC.1]: 
   #   If the caller call this workflow, then it will automatically triggered 
@@ -47,6 +12,17 @@ on:
         type: string
         required: true
         default: "ubuntu-latest"
+      
+      custom-test-script:
+        description: Custom script to test
+        type: string
+        required: false
+      
+      custom-build-script:
+        description: Custom script to build
+        type: string
+        required: false
+
       registry:
         description: "Enable container registry access (true/false)"
         type: string
@@ -59,29 +35,81 @@ on:
         default: true
 
 jobs:
-  build:
-    name: Build & Test
+  unit-test:
+    name: Perform Unit test
     runs-on: ${{ inputs.runner }}
+    container:
+      # Pre-built Maven+Java image for consistency
+      image: maven:3.9.6-eclipse-temurin-17 
     steps:
-      - name: Checkout code
+      - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Setup environment
-        run: echo "Install dependencies and setup build tools"
+      - name: Set up caching for Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          # Hashing pom.xml's content -> If content 
+          # changes, mean the dependency must also change 
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
-      - name: Build application
-        run: echo "Run your build command here"
+      # [Automated Build & Test Execution]-[AC.3]: Build must finish fast → caching + container keeps runtime < 5 min
+      - name: Java unit test
+        if: ${{ inputs.custom-test-script == '' }}
+        run: 
+          mvn -B clean test 
 
-      - name: Store artifact
+      - name: Run custom test script
+        if: ${{ inputs.custom-test-script != '' }}
+        run: 
+          bash ${{ inputs.custom-test-script }}
+
+      - name: Upload artifact
+        # [Automated Build & Test Execution]-[AC.5]: Logs + artifacts are uploaded and searchable in GitHub Actions UI
         uses: actions/upload-artifact@v4
         with:
-          name: build-artifact
-          path: ./build
+          name: springboot-app
+          path: target/artifacts/*.jar
 
-      - name: Run tests
-        run: echo "Run unit, integration, and regression tests"
+  build-and-intergration-test:
+    name: Build and Perform Integration Test
+    # [Automated Build & Test Execution]-[AC.2]: 
+    #   Use containerized build environment (Docker image with JDK + Maven/Gradle) to ensure
+    #   all stage will run with the same environement. 
+    runs-on: ${{ inputs.runner }}
+    container:
+      # Pre-built Maven+Java image for consistency
+      image: maven:3.9.6-eclipse-temurin-17 
+        
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
 
-      - name: Code coverage
-        run: echo "Generate and upload coverage report"
+      - name: Set up caching for Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          # Hashing pom.xml's content -> If content 
+          # changes, mean the dependency must also change 
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      
+      # [Automated Build & Test Execution]-[AC.3]: Build must finish fast → caching + container keeps runtime < 5 min
+      - name: Java Application Build
+        if: ${{ inputs.custom-build-script == '' }}
+        run: 
+          mvn -B clean package 
+      - name: Run custom build script
+        if: ${{ inputs.custom-build-script != '' }}
+        run: 
+          bash ${{ inputs.custom-build-script }}
+
+      - name: Containerized application with Docker
+        run:
+          docker build .
+
 
 
