@@ -16,12 +16,24 @@ on:
 
   workflow_call:
     inputs:
+      # ============ INPUT CONFIGURATION ============
       environment:
         required: true
         type: string
       service-name:
         required: true
         type: string
+
+      # ============ CUSTOM SCRIPT ============
+      custom-test-script:
+        description: Custom script to test
+        type: string
+        required: false
+      custom-build-script:
+        description: Custom script to build
+        type: string
+        required: false    
+
     secrets:
       deploy_token:
         required: true
@@ -44,12 +56,13 @@ jobs:
 
   # 🔍 Stage 2: Build & Compile & Testing
   build-test:
-    uses: ./.github/workflows/template/build-test/main.yml
+    uses: ./.github/workflows/build-test-stage-template.yml
     with:
-      runner:         ubuntu-latest
-      registry:       false
-      report:         false
-
+      runner:               ubuntu-latest
+      registry:             false
+      report:               false
+      custom-test-script:   ${{ inputs.custom-test-script }}
+      custom-build-script:  ${{ inputs.custom-build-script }}
   # 🔐 Stage 3: Security & Compliance Gate
   compliance-check:
     runs-on: ubuntu-latest

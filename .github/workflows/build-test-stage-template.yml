@@ -1,0 +1,131 @@
+name: Build & Test Stage
+
+on:
+  # [Automated Build & Test Execution]-[AC.1]: 
+  #   If the caller call this workflow, then it will automatically triggered 
+  #   according to the event trigger of the caller. In this case the caller 
+  #   should be config to be trigger CI build with event push
+  workflow_call:
+    inputs:
+      runner:
+        description: "Choose runner"
+        type: string
+        required: true
+        default: "ubuntu-latest"
+      
+      custom-test-script:
+        description: Custom script to test
+        type: string
+        required: false
+      
+      custom-build-script:
+        description: Custom script to build
+        type: string
+        required: false
+
+      registry:
+        description: "Enable container registry access (true/false)"
+        type: string
+        required: false
+        default: "false"
+      report:
+        description: "Enable regression report upload (true/false)"
+        type: boolean
+        required: false
+        default: true
+
+# [Automated Build & Test Execution]-[AC.3]: Build is complete within 5 minutes for Commit Stage CI/CD.
+# [Automated Build & Test Execution]-[AC.5]: Build logs can be search the GitHub logs itself.
+# [Parallel Test Suite Execution]-[AC.1]: Unit test and integration test execute in parallel
+# [Parallel Test Suite Execution]-[AC.3]: The stage will finish in under 8 minutes for Commit Stage CI/CD.
+# [Parallel Test Suite Execution]-[AC.5]: Test execution time is tracked by GitHub itself
+# [Parallel Test Suite Execution]-[AC.6]: Test report includes in the GitHub logs itself
+jobs:
+  unit-test:
+    name: Perform Unit test
+    runs-on: ${{ inputs.runner }}
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      # [Automated Build & Test Execution]-[AC.3]: Build must finish fast → caching + container keeps runtime < 5 min
+      - name: Set up caching for Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          # Hashing pom.xml's content -> If content 
+          # changes, mean the dependency must also change 
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # [Automated Build & Test Execution]-[AC.3]: Build must finish fast → caching + container keeps runtime < 5 min
+      - name: Java unit test
+        if: ${{ inputs.custom-test-script == '' }}
+        run: 
+          mvn -B clean test 
+
+      # [Parallel Test Suite Execution]-[AC.2]: Fail fast mechanism is depend on the input custom code
+      - name: Run custom test script
+        if: ${{ inputs.custom-test-script != '' }}
+        run: 
+          bash ${{ inputs.custom-test-script }}
+
+      - name: Upload artifact
+        # [Automated Build & Test Execution]-[AC.5]: Logs + artifacts are uploaded and searchable in GitHub Actions UI
+        uses: actions/upload-artifact@v4
+        with:
+          name: springboot-app
+          path: target/artifacts/*.jar
+
+  build-and-intergration-test:
+    name: Build and Perform Integration Test
+    # [Automated Build & Test Execution]-[AC.2]: 
+    #   Use containerized build environment (Docker image with JDK + Maven/Gradle) to ensure
+    #   all stage will run with the same environement. 
+    runs-on: ${{ inputs.runner }}
+        
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      # [Automated Build & Test Execution]-[AC.3]: Build must finish fast → caching + container keeps runtime < 5 min
+      - name: Set up caching for Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          # Hashing pom.xml's content -> If content 
+          # changes, mean the dependency must also change 
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      
+      - name: Java Application Build
+        if: ${{ inputs.custom-build-script == '' }}
+        run: 
+          mvn -B clean package 
+      # [Parallel Test Suite Execution]-[AC.2]: Fail fast mechanism is depend on the input custom code
+      - name: Run custom build script
+        if: ${{ inputs.custom-build-script != '' }}
+        run: 
+          bash ${{ inputs.custom-build-script }}
+
+      - name: Containerized application with Docker
+        run:
+          # [Automated Build & Test Execution]-[AC.6]: Build Docker image with tag contains git SHA
+          docker build -t ${{ inputs.registry }}:${{ github.sha }} .
+
+
