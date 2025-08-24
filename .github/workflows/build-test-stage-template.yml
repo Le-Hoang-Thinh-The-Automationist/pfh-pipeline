@@ -116,6 +116,7 @@ jobs:
 
       - name: Containerized application with Docker
         run:
-          docker build .
+          # [Automated Build & Test Execution]-[AC.6]: Build Docker image with tag contains git SHA
+          docker build -t ${{ inputs.registry }}:${{ github.sha }} .
 
 

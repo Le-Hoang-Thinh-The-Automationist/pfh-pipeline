@@ -12,7 +12,7 @@
 - [ ] **AC.3:** Build completes within 5 minutes to maintain fast feedback loops
 - [ ] **AC.4:** Failed builds immediately notify the developer via preferred channel (Slack/email)
 - [ ] **AC.5:** Build logs are easily accessible and searchable for troubleshooting
-- [ ] **AC.6:** Build artifacts are automatically versioned with semantic versioning + Git SHA
+- [X] **AC.6:** Build artifacts are automatically versioned with semantic versioning + Git SHA
 
 ---
 
