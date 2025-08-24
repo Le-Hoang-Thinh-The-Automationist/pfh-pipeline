@@ -66,6 +66,12 @@ on:
         required: false
         default: true
 
+# [Automated Build & Test Execution]-[AC.3]: Build is complete within 5 minutes for Commit Stage CI/CD.
+# [Automated Build & Test Execution]-[AC.5]: Build logs can be search the GitHub logs itself.
+# [Parallel Test Suite Execution]-[AC.1]: Unit test and integration test execute in parallel
+# [Parallel Test Suite Execution]-[AC.3]: The stage will finish in under 8 minutes for Commit Stage CI/CD.
+# [Parallel Test Suite Execution]-[AC.5]: Test execution time is tracked by GitHub itself
+# [Parallel Test Suite Execution]-[AC.6]: Test report includes in the GitHub logs itself
 jobs:
   unit-test:
     name: Perform Unit test
@@ -81,6 +87,7 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      # [Automated Build & Test Execution]-[AC.3]: Build must finish fast → caching + container keeps runtime < 5 min
       - name: Set up caching for Maven dependencies
         uses: actions/cache@v4
         with:
@@ -97,6 +104,7 @@ jobs:
         run: 
           mvn -B clean test 
 
+      # [Parallel Test Suite Execution]-[AC.2]: Fail fast mechanism is depend on the input custom code
       - name: Run custom test script
         if: ${{ inputs.custom-test-script != '' }}
         run: 
@@ -126,6 +134,7 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      # [Automated Build & Test Execution]-[AC.3]: Build must finish fast → caching + container keeps runtime < 5 min
       - name: Set up caching for Maven dependencies
         uses: actions/cache@v4
         with:
@@ -136,11 +145,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       
-      # [Automated Build & Test Execution]-[AC.3]: Build must finish fast → caching + container keeps runtime < 5 min
       - name: Java Application Build
         if: ${{ inputs.custom-build-script == '' }}
         run: 
           mvn -B clean package 
+      # [Parallel Test Suite Execution]-[AC.2]: Fail fast mechanism is depend on the input custom code
       - name: Run custom build script
         if: ${{ inputs.custom-build-script != '' }}
         run: 
