@@ -38,12 +38,16 @@ jobs:
   unit-test:
     name: Perform Unit test
     runs-on: ${{ inputs.runner }}
-    container:
-      # Pre-built Maven+Java image for consistency
-      image: maven:3.9.6-eclipse-temurin-17 
+
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
       - name: Set up caching for Maven dependencies
         uses: actions/cache@v4
@@ -79,13 +83,16 @@ jobs:
     #   Use containerized build environment (Docker image with JDK + Maven/Gradle) to ensure
     #   all stage will run with the same environement. 
     runs-on: ${{ inputs.runner }}
-    container:
-      # Pre-built Maven+Java image for consistency
-      image: maven:3.9.6-eclipse-temurin-17 
         
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
       - name: Set up caching for Maven dependencies
         uses: actions/cache@v4
@@ -111,5 +118,10 @@ jobs:
         run:
           docker build .
 
+      - name: 
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: ./build
 
 
