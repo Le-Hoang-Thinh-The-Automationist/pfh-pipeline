@@ -44,28 +44,11 @@ jobs:
 
   # 🔍 Stage 2: Build & Compile & Testing
   build-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup environment
-        run: echo "Install dependencies and setup build tools"
-
-      - name: Build application
-        run: echo "Run your build command here"
-
-      - name: Store artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifact
-          path: ./build
-
-      - name: Run tests
-        run: echo "Run unit, integration, and regression tests"
-
-      - name: Code coverage
-        run: echo "Generate and upload coverage report"
+    uses: ./.github/workflows/template/build-test/main.yml
+    with:
+      runner:         ubuntu-latest
+      registry:       false
+      report:         false
 
   # 🔐 Stage 3: Security & Compliance Gate
   compliance-check:
