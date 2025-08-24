@@ -44,7 +44,7 @@ jobs:
 
   # 🔍 Stage 2: Build & Compile & Testing
   build-test:
-    uses: ./.github/workflows/template/build-test/main.yml
+    uses: ./.github/workflows/build-test-stage-template.yml
     with:
       runner:         ubuntu-latest
       registry:       false

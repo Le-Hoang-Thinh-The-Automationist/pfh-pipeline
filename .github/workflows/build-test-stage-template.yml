@@ -44,16 +44,19 @@ on:
     inputs:
       runner:
         description: "Choose runner"
+        type: string
         required: true
         default: "ubuntu-latest"
       registry:
         description: "Enable container registry access (true/false)"
+        type: string
         required: false
         default: "false"
       report:
         description: "Enable regression report upload (true/false)"
+        type: boolean
         required: false
-        default: "true"
+        default: true
 
 jobs:
   build:
