@@ -16,3 +16,4 @@
 - [ ] **AC.6:** Deployment should be run and monitor for healthy deploy.
 - [ ] **AC.7:** After Deployment success, tear down the deployment immediately to save resource.
 - [ ] **AC.8:** After Merge PR, clean all artifacts of the PR to save resource.
+- [ ] **AC.9:** Automatically add PIC for QA branch to PR's review if not already. 
