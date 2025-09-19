@@ -1,7 +1,5 @@
 # Developer Service
 
----
-
 ## **User Story: Fast Feedback at Commit Stage**
 
 * **As a** developer working on feature branch, without creating PR
@@ -16,4 +14,3 @@
 - [ ] **AC.4:** Trash dependencies detection and packaging to artifact.
 - [ ] **AC.5:** Dependency vulnerability checks and license compliance validation if needed.
 - [ ] **AC.5:** Removed artifacts after each build.
-
