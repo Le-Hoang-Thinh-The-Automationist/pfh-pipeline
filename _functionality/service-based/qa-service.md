@@ -16,8 +16,7 @@
 - [ ] **AC.6:** Deployment should be run only when trigger manually.
 - [ ] **AC.7:** After Deployment success, check health running for a while before tear down the deployment to save resource.
 - [ ] **AC.8:** After Merge PR, clean all artifacts of the PR to save resource.
-- [ ] **AC.9:** Automatically add PIC for QA branch to PR's review if not already. 
-- [ ] **AC.10:** If possible, check  
+- [ ] **AC.9:** Automatically add PIC for QA branch to PR's review if not already.
 
 ## **User Story: New Merged Quality Healthcheck**
 
