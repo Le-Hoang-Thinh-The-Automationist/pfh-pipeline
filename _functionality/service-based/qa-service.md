@@ -1,5 +1,22 @@
 # QA Service
 
+## **User Story: Workflow toolbox for QA process**
+
+* **As a** QA engineer and developer
+* **I want** CI that can run automatically or manually on either QA branch or the branch that wished to merged to QA
+* **So that** I can control the QA process better
+
+✅ **Acceptance Criteria:**
+- [X] **AC.1 — Automatic Trigger on QA Branch:** The CI workflow **automatically runs** when code is pushed to the `QA` branch.  
+- [ ] **AC.2 — Automatic Trigger on PRs Targeting QA:** The CI workflow **automatically runs** when a pull request is opened, synchronized, or reopened with the **target branch set to `QA`**.  
+- [ ] **AC.3 — Manual Trigger Support:** The CI workflow can be **manually triggered** via `workflow_dispatch` for:  
+      - The `QA` branch  
+      - Any feature branch intended to be merged into `QA`
+- [x] **AC.4 — Branch Parameterization for Manual Runs:**  When triggered manually, the workflow **accepts a branch name as an input parameter** and runs QA checks against that branch.  
+- [ ] **AC.5 — Consistent QA Checks:** Regardless of trigger type (auto or manual), the workflow executes the **same QA validation steps** (e.g., build, tests, linting, security scans) to ensure consistent results.  
+- [ ] **AC.6 — Execution Feedback:** The workflow **reports pass/fail status** and provides **detailed logs** for each QA check step in the Actions UI.
+- [ ] **AC.7 — Deliverable Ouput:** The output should be a workflow template where it can be given out to other user repositories without expose the detail workflow configuration
+
 ## **User Story: Mandatory Checklist at PR into QA**
 
 * **As a** QA engineer
