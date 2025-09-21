@@ -30,9 +30,6 @@ on:
   workflow_call:
     inputs:
       # ============ INPUT CONFIGURATION ============
-      environment:
-        required: true
-        type: string
       service-name:
         required: true
         type: string

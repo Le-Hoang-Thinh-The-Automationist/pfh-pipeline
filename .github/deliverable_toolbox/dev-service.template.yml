@@ -37,15 +37,8 @@ jobs:
     name: Setup configuration based on the trigger event
     runs-on: ubuntu-latest
     outputs:
-      environment: ${{ steps.determine.outputs.environment }}
       security-stage-enable: ${{ steps.security-stage-check.outputs.security-stage-enable }}
     steps:
-      - id: determine
-        name: Set environment to DEV
-        run: |
-          echo "environment=DEV" >> $GITHUB_OUTPUT
-          echo "The matching deployment's environment is DEV"
-
       - id: security-stage-check
         name: Check if security and compliance check stage is enabled
         run: |
@@ -62,11 +55,10 @@ jobs:
     needs: set-configuration
     name: Fast-feedback at Commit Stage
     # Only run this job if it's a PR event or if the specified branch has an open PR to QA when triggered manually
-    uses: DUMMY_CI_WORKFLOW_PATH/DEV_commit-fast-feedback.yml@<DUMMY_RELEASE_TAG>
+    uses: <DUMMY_CI_WORKFLOW_PATH>/DEV_commit-fast-feedback.yml@<DUMMY_RELEASE_TAG>
     with:
       # Mandatory inputs
-      environment: ${{ needs.set-configuration.outputs.environment }}
-      service-name: DUMMY_SERVICE_NAME
+      service-name: <DUMMY_SERVICE_NAME>
 
       # Custom
       custom-test-script: <DUMMY_CUSTOM_TEST_SCRIPTS>
