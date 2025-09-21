@@ -3,11 +3,12 @@ name: QA Workflow Services
 on:
   # [QA Workflow Toolbox]-[AC.3]: Manual Trigger Support
   workflow_dispatch:
-  # Any feature branch PR to QA or direct push to QA will trigger this workflow
+  # [QA Workflow Toolbox]-[AC.2]: Automatic Trigger on QA Branch
   pull_request:
     types:
       - opened       # Trigger PR is first opened
       - reopened     # Trigger PR is reopened 
+      - synchronize  # New push where the branch has PR
     branches:
       - qa           # Target branch (base) must be QA
       - 'qa/**'
@@ -57,7 +58,7 @@ jobs:
     name: Manual trigger on branch that does not have PR to QA
     runs-on: ubuntu-latest
     needs: set-configuration
-    if: ${{ github.event_name== 'workflow_dispatch' && needs.set-configuration.outputs.has_open_pr_to_qa == 'false' }} 
+    if: ${{ github.event_name== 'workflow_dispatch' && needs.set-configuration.outputs.has_open_pr_to_qa == 'false' && github.ref_name != 'qa' && !startsWith(github.ref_name, 'qa/') }} 
     steps:
       - name: Fail the workflow
         run: |
@@ -70,13 +71,14 @@ jobs:
   call-pr-ci-workflow:
     name: Pull Request CI Workflow
     needs: set-configuration
+    # [QA Workflow Toolbox]-[AC.2][AC.3]: Run for PRs to QA or manual trigger with PR to QA
     # Only run this job if it's a PR event or if the specified branch has an open PR to QA when triggered manually
     if: ${{ github.event_name== 'pull_request' || (github.event_name== 'workflow_dispatch' && needs.set-configuration.outputs.has_open_pr_to_qa == 'true') }} 
     uses: <DUMMY_CI_WORKFLOW_PATH>/QA_pull-request-quality-gate.yml@<DUMMY_RELEASE_TAG>
     with:
       # Mandatory inputs
       environment: ${{ needs.set-configuration.outputs.environment }}
-      service-name: pfh-user-service
+      service-name: <DUMMY_SERVICE>
 
       # Custom
       custom-test-script: <DUMMY_CUSTOM_TEST_SCRIPTS>

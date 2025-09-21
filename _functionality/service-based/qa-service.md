@@ -9,7 +9,7 @@
 ✅ **Acceptance Criteria:**
 - [X] **AC.1 — Automatic Trigger on QA Branch:** The CI workflow **automatically runs** when code is pushed to the `QA` branch.  
 - [X] **AC.2 — Automatic Trigger on PRs Targeting QA:** The CI workflow **automatically runs** when a pull request is opened, synchronized, or reopened with the **target branch set to `QA`**.  
-- [ ] **AC.3 — Manual Trigger Support:** The CI workflow can be **manually triggered** via `workflow_dispatch` for:  
+- [X] **AC.3 — Manual Trigger Support:** The CI workflow can be **manually triggered** via `workflow_dispatch` for:  
       - The `QA` branch  
       - Any feature branch intended to be merged into `QA`
 - [x] **AC.4 — Branch Parameterization for Manual Runs:**  When triggered manually, the workflow **accepts a branch name as an input parameter** and runs QA checks against that branch.  
