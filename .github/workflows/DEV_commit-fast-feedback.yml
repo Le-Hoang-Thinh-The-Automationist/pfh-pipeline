@@ -92,7 +92,7 @@ jobs:
   security-and-compliance-check:
     runs-on: ubuntu-latest
     name: Security and Compliance Check
-    if: ${{ inputs.security-and-compliance-check-enable == 'true' }}
+    if: ${{ inputs.security-and-compliance-check-enable ==  true  }}
     needs: 
       - source-validation
       - build-test
