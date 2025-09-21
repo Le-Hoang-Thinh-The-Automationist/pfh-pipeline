@@ -1,5 +1,6 @@
 name: DEV Commit Fast Feedback
 on:
+  # For Testing purpose, trigger this workflow on push to any branch except main, prod, stag, qa 
   workflow_dispatch:
     inputs:
         # ============ INPUT CONFIGURATION ============
@@ -90,21 +91,10 @@ jobs:
   # 🔐 Stage 3: Security & Compliance Gate
   # [Fast Feedback at Commit Stage]-[AC.5]: Optional security and compliance check stage
   security-and-compliance-check:
-    runs-on: ubuntu-latest
-    name: Security and Compliance Check
     if: ${{ inputs.security-and-compliance-check-enable ==  true  }}
     needs: 
       - source-validation
       - build-test
-    steps:
-      - name: Docker Image Scanning
-        run:  echo "Docker Image Scanning"
-        
-      - name: Policy enforcement
-        run: echo "Run OPA or Sentinel policies"
-
-      - name: Audit logging
-        run: echo "Log evidence for compliance"
-
-      - name: Sign Docker images
-        run: echo "Sign Docker images with cryptographic signatures before push them to Registry"
+    uses: ./.github/workflows/_security-compliance-stage.yml
+    with:
+      runner:               ubuntu-latest

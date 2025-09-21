@@ -43,6 +43,7 @@ jobs:
   # 🛠️ Stage 1: Source Control & Validation
   source-validation:
     runs-on: ubuntu-latest
+    name: Lint and Static Analysis
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -63,38 +64,15 @@ jobs:
       report:               false
       custom-test-script:   ${{ inputs.custom-test-script }}
       custom-build-script:  ${{ inputs.custom-build-script }}
+
   # 🔐 Stage 3: Security & Compliance Gate
   compliance-check:
-    runs-on: ubuntu-latest
-    if: 
-      ${{ inputs.environment != 'Feature' }}
     needs: 
       - source-validation
       - build-test
-    steps:
-      # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.3]: Integrates with 'container scanning'
-      # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.2]: 
-      #     Check for vunerable dependencies by apply checking for Docker SBOM and generate
-      #     SBOM report for security analyzing and auditing
-      - name: Docker Image Scanning
-        run:  echo "Docker Image Scanning"
-        
-      - name: Policy enforcement
-        run: echo "Run OPA or Sentinel policies"
-
-      # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.7]: 
-      #     Generates compliance reports for SOX, PCI-DSS, and regulatory audits
-      - name: Audit logging
-        run: echo "Log evidence for compliance"
-
-      # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.3]: Integrates 'signs images with cryptographic signatures'
-      - name: Sign Docker images
-        run: echo "Sign Docker images with cryptographic signatures before push them to Registry"
-
-      - name: Manual approval (if needed)
-        uses: hmarr/auto-approve-action@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+    uses: ./.github/workflows/_security-compliance-stage.yml
+    with:
+      runner:               ubuntu-latest
 
   # 📦 Stage 4: Artifact Management
   artifact-handling:
