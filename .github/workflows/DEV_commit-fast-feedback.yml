@@ -19,6 +19,13 @@ on:
             type: string
             required: false
 
+        # ============ ADDITIONAL STAGE ============
+        security-and-compliance-check-enable:
+            description: Enable security and compliance check stage (true/false)
+            type: boolean
+            required: false
+            default: false
+
   workflow_call:
     inputs:
       # ============ INPUT CONFIGURATION ============
@@ -71,4 +78,26 @@ jobs:
       registry:             false
       report:               false
       custom-test-script:   ${{ inputs.custom-test-script }}
-      custom-build-script:  ${{ inputs.custom-build-script }}  
+      custom-build-script:  ${{ inputs.custom-build-script }}
+
+  # 🔐 Stage 3: Security & Compliance Gate
+  # [Fast Feedback at Commit Stage]-[AC.5]: Optional security and compliance check stage
+  security-and-compliance-check:
+    runs-on: ubuntu-latest
+    name: Security and Compliance Check
+    if: ${{ inputs.security-and-compliance-check-enable == 'true' }}
+    needs: 
+      - source-validation
+      - build-test
+    steps:
+      - name: Docker Image Scanning
+        run:  echo "Docker Image Scanning"
+        
+      - name: Policy enforcement
+        run: echo "Run OPA or Sentinel policies"
+
+      - name: Audit logging
+        run: echo "Log evidence for compliance"
+
+      - name: Sign Docker images
+        run: echo "Sign Docker images with cryptographic signatures before push them to Registry"
