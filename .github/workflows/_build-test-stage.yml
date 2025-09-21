@@ -78,13 +78,6 @@ jobs:
         run: 
           bash ${{ inputs.custom-test-script }}
 
-      - name: Upload artifact
-        # [Automated Build & Test Execution]-[AC.5]: Logs + artifacts are uploaded and searchable in GitHub Actions UI
-        uses: actions/upload-artifact@v4
-        with:
-          name: springboot-app
-          path: target/artifacts/*.jar
-
   build-and-intergration-test:
     name: Build and Perform Integration Test
     # [Automated Build & Test Execution]-[AC.2]: 
