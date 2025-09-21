@@ -3,22 +3,18 @@ name: QA Workflow Services
 on:
   # [QA Workflow Toolbox]-[AC.3]: Manual Trigger Support
   workflow_dispatch:
-    inputs:
-      # ============ INPUT CONFIGURATION ============
-      pull_request_branch:
-        description: Choose the branch of the pull request that wish to merge to QA
-        required: true
-        type: string
-  # [QA Workflow Toolbox]-[AC.2]: Automatic Trigger on PRs Targeting QA
+  # Any feature branch PR to QA or direct push to QA will trigger this workflow
   pull_request:
     types:
       - opened       # Only when PR is first opened
     branches:
       - qa           # Target branch (base) must be QA
+      - 'qa/**'
   # [QA Workflow Toolbox]-[AC.1]: Automatic Trigger on QA Branch
   push:
     branches:
       - 'qa'
+      - 'qa/**'
 
 run-name: "[QA]: ${{ github.event_name }} at ${{ github.ref_name }} (${{ github.sha }})"
 
@@ -47,7 +43,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          branch="${{ github.event.inputs.pull_request_branch }}"
+          branch="${{ github.ref_name }}"
           pr_count=$(gh pr list --base qa --head "$branch" --state open --json number --jq 'length')
           if [ "$pr_count" -gt 0 ]; then
             echo "has_open_pr_to_qa=true" >> $GITHUB_OUTPUT
@@ -71,13 +67,15 @@ jobs:
   # [QA Workflow Toolbox]-[AC.5][AC.6]: Consistent QA Checks & Execution Feedback
   # [QA Workflow Toolbox]-[AC.2][AC.3]: Run for PRs to QA or manual trigger with PR to QA
   call-pr-ci-workflow:
+    name: Pull Request CI Workflow
     needs: set-configuration
+    # Only run this job if it's a PR event or if the specified branch has an open PR to QA when triggered manually
     if: ${{ github.event_name== 'pull_request' || (github.event_name== 'workflow_dispatch' && needs.set-configuration.outputs.has_open_pr_to_qa == 'true') }} 
     uses: DUMMY_CI_WORKFLOW_PATH
     with:
       # Mandatory inputs
-      environment: ${{ needs.set-environment.outputs.environment }}
-      service-name: DUMMY_SERVICE_NAME
+      environment: ${{ needs.set-configuration.outputs.environment }}
+      service-name: pfh-user-service
 
       # Custom
       custom-test-script: DUMMY_CUSTOM_TEST_SCRIPTS
