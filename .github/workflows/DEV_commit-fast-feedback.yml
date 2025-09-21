@@ -46,6 +46,13 @@ on:
         type: string
         required: false    
 
+      # ============ ADDITIONAL STAGE ============
+      security-and-compliance-check-enable:
+          description: Enable security and compliance check stage (true/false)
+          type: boolean
+          required: false
+          default: false
+
     secrets:
       deploy_token:
         required: true
