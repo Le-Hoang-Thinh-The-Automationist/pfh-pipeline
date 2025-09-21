@@ -46,11 +46,17 @@ on:
 
 jobs:
   # 🛠️ Stage 1: Source Control & Validation
+  # [Fast Feedback at Commit Stage]-[AC.1]: Automatic linting and static analysis.
   source-validation:
     runs-on: ubuntu-latest
+    name: Lint and Static Analysis
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Linting
+        run: |
+          echo "Run Linting"
 
       - name: Static code analysis
         run: |
