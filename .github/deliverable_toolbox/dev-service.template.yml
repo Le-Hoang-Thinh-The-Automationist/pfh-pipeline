@@ -1,0 +1,79 @@
+name: Developer Workflow Services
+
+on:
+  workflow_dispatch:
+    inputs:
+      # ============ INPUT CONFIGURATION ============
+      # Choose brach or commit to run fast-feedback CI
+      commit-identifier:
+        description: "The commit SHA (default: latest commit of the current branch)"
+        required: false
+        default: HEAD
+        type: string
+      # Choose the service to run fast-feedback CI
+      service-name:
+        description: Name of the service to run fast-feedback CI
+        required: true
+        type: string
+      # ============ ADDITIONAL STAGE ============
+      security-stage-enable :
+          description: Enable security and compliance check stage (true/false)
+          type: boolean
+          required: false
+          default: false
+  push:
+    # Any branch except main, prod, stag, qa will trigger this workflow
+    branches-ignore:
+      - 'main'
+      - 'prod'
+      - 'stag'
+      - 'qa'
+      - 'qa/**'
+
+run-name: "[DEV] ${{ github.ref_name }}: (${{ github.sha }})"
+
+jobs:
+  set-configuration:
+    name: Setup configuration based on the trigger event
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.determine.outputs.environment }}
+      security-stage-enable: ${{ steps.security-stage-check.outputs.security-stage-enable }}
+    steps:
+      - id: determine
+        name: Set environment to DEV
+        run: |
+          echo "environment=DEV" >> $GITHUB_OUTPUT
+          echo "The matching deployment's environment is DEV"
+
+      - id: security-stage-check
+        name: Check if security and compliance check stage is enabled
+        run: |
+          INPUT="${{ github.event.inputs.security-stage-enable || '' }}"
+          if [ -z "$INPUT" ]; then
+            echo "security-stage-enable=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "security-stage-enable=$INPUT" >> "$GITHUB_OUTPUT"
+          fi
+          echo "Security and compliance check stage enable: $INPUT"
+
+  # This job will run if it's a PR event or if the specified branch has an open PR to QA when triggered manually
+  call-fast-feedback-ci-workflow:
+    needs: set-configuration
+    name: Fast-feedback at Commit Stage
+    # Only run this job if it's a PR event or if the specified branch has an open PR to QA when triggered manually
+    uses: DUMMY_CI_WORKFLOW_PATH/DEV_commit-fast-feedback.yml@<DUMMY_RELEASE_TAG>
+    with:
+      # Mandatory inputs
+      environment: ${{ needs.set-configuration.outputs.environment }}
+      service-name: DUMMY_SERVICE_NAME
+
+      # Custom
+      custom-test-script: <DUMMY_CUSTOM_TEST_SCRIPTS>
+      custom-build-script: <DUMMY_CUSTOM_BUILD_SCRIPTS>
+
+      # Security and compliance check stage
+      # Use fromJSON to convert string "true"/"false" to boolean true/false
+      security-and-compliance-check-enable: ${{ fromJSON(needs.set-configuration.outputs.security-stage-enable) }}
+    secrets:
+      deploy_token: ${{ secrets.DEPLOY_TOKEN }}

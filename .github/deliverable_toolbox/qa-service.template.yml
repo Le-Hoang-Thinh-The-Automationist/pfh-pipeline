@@ -71,15 +71,15 @@ jobs:
     needs: set-configuration
     # Only run this job if it's a PR event or if the specified branch has an open PR to QA when triggered manually
     if: ${{ github.event_name== 'pull_request' || (github.event_name== 'workflow_dispatch' && needs.set-configuration.outputs.has_open_pr_to_qa == 'true') }} 
-    uses: DUMMY_CI_WORKFLOW_PATH
+    uses: <DUMMY_CI_WORKFLOW_PATH>/QA_pull-request-quality-gate.yml@<DUMMY_RELEASE_TAG>
     with:
       # Mandatory inputs
       environment: ${{ needs.set-configuration.outputs.environment }}
       service-name: pfh-user-service
 
       # Custom
-      custom-test-script: DUMMY_CUSTOM_TEST_SCRIPTS
-      custom-build-script: DUMMY_CUSTOM_BUILD_SCRIPTS
+      custom-test-script: <DUMMY_CUSTOM_TEST_SCRIPTS>
+      custom-build-script: <DUMMY_CUSTOM_BUILD_SCRIPTS>
     
     secrets:
       deploy_token: ${{ secrets.DEPLOY_TOKEN }}
