@@ -42,7 +42,7 @@ on:
 # [Parallel Test Suite Execution]-[AC.6]: Test report includes in the GitHub logs itself
 jobs:
   unit-test:
-    name: Perform Unit test
+    name: Perform Unit Test & Dependencies Report
     runs-on: ${{ inputs.runner }}
 
     steps:
@@ -76,7 +76,12 @@ jobs:
       - name: Run custom test script
         if: ${{ inputs.custom-test-script != '' }}
         run: 
-          bash ${{ inputs.custom-test-script }}
+          bash ${{ inputs.custom-test-script }}       
+
+      # [Fast Feedback at Commit Stage]-[AC.4]: Trash dependencies detection, any unused packages will be displayed here
+      - name: Dependencies analysis report
+        run:
+          mvn dependency:analyze
 
   build-and-intergration-test:
     name: Build and Perform Integration Test
@@ -121,4 +126,15 @@ jobs:
           # [Automated Build & Test Execution]-[AC.6]: Build Docker image with tag contains git SHA
           docker build -t ${{ inputs.registry }}:${{ github.sha }} .
 
+      # [Fast Feedback at Commit Stage]-[AC.4]: Image size display here
+      - name: Docker image size
+        run: |
+          #!/bin/bash
 
+          docker history ${{ inputs.registry }}:${{ github.sha }} .
+          echo
+          echo "Total Docker image size: $(docker image inspect ${{ inputs.registry }}:${{ github.sha }} --format='{{.Size}}' | numfmt --to=iec)"
+      
+      # [Fast Feedback at Commit Stage]-[AC.6]: Image size display here
+      - name: Clean docker image after build
+        run: docker rmi ${{ inputs.registry }}:${{ github.sha }}

@@ -9,8 +9,9 @@
 ✅ **Acceptance Criteria:**
 
 - [X] **AC.1:** Automatic linting and static analysis.
-- [ ] **AC.2:** Only full test suite of component test should be executed.
-- [ ] **AC.3:** Should only run the entire functionality of my choice and run full test if needed.
-- [ ] **AC.4:** Trash dependencies detection and packaging to artifact.
+- [X] **AC.2:** Only full test suite of component test should be executed.
+- [X] **AC.3:** Should only run the entire functionality of my choice and run full test if needed.
+- [X] **AC.4:** Trash dependencies detection and display the image size 
 - [X] **AC.5:** Dependency vulnerability checks and license compliance validation if needed.
-- [ ] **AC.5:** Removed artifacts after each build.
+- [X] **AC.6:** Removed artifacts after each build.
+- [X] **AC.7:** The Fast Feedback at Commit Stage shall not run when is has PR to merge QA.
