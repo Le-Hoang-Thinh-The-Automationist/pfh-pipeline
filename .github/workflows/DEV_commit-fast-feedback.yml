@@ -1,0 +1,97 @@
+name: DEV Commit Fast Feedback
+on:
+  # For Testing purpose, trigger this workflow on push to any branch except main, prod, stag, qa 
+  workflow_dispatch:
+    inputs:
+        # ============ INPUT CONFIGURATION ============
+        service-name:
+            description: Name of the service
+            required: true
+            type: string
+    
+        # ============ CUSTOM SCRIPT ============
+        custom-test-script:
+            description: Custom script to test
+            type: string
+            required: false
+            
+        custom-build-script:
+            description: Custom script to build
+            type: string
+            required: false
+
+        # ============ ADDITIONAL STAGE ============
+        security-and-compliance-check-enable:
+            description: Enable security and compliance check stage (true/false)
+            type: boolean
+            required: false
+            default: false
+
+  workflow_call:
+    inputs:
+      # ============ INPUT CONFIGURATION ============
+      service-name:
+        required: true
+        type: string
+
+      # ============ CUSTOM SCRIPT ============
+      custom-test-script:
+        description: Custom script to test
+        type: string
+        required: false
+      custom-build-script:
+        description: Custom script to build
+        type: string
+        required: false    
+
+      # ============ ADDITIONAL STAGE ============
+      security-and-compliance-check-enable:
+          description: Enable security and compliance check stage (true/false)
+          type: boolean
+          required: false
+          default: false
+
+    secrets:
+      deploy_token:
+        required: true
+
+
+jobs:
+  # 🛠️ Stage 1: Source Control & Validation
+  # [Fast Feedback at Commit Stage]-[AC.1]: Automatic linting and static analysis.
+  source-validation:
+    runs-on: ubuntu-latest
+    name: Lint and Static Analysis
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Linting
+        run: |
+          echo "Run Linting"
+
+      - name: Static code analysis
+        run: |
+          echo "Run SonarQube for Quality Gates"
+          echo "Run SonarQube for SAST"
+
+  # 🔍 Stage 2: Build & Compile & Testing
+  build-test:
+    uses: ./.github/workflows/_build-test-stage.yml
+    with:
+      runner:               ubuntu-latest
+      registry:             false
+      report:               false
+      custom-test-script:   ${{ inputs.custom-test-script }}
+      custom-build-script:  ${{ inputs.custom-build-script }}
+
+  # 🔐 Stage 3: Security & Compliance Gate
+  # [Fast Feedback at Commit Stage]-[AC.5]: Optional security and compliance check stage
+  security-and-compliance-check:
+    if: ${{ inputs.security-and-compliance-check-enable ==  true  }}
+    needs: 
+      - source-validation
+      - build-test
+    uses: ./.github/workflows/_security-compliance-stage.yml
+    with:
+      runner:               ubuntu-latest
