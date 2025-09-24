@@ -25,11 +25,11 @@
 
 ✅ **Acceptance Criteria:**
 
-- [ ] **AC.1:** Code quality checks (linting, security scanning, code coverage) executed automatically
-- [ ] **AC.2:** Full test suite for functionality and component test.
-- [ ] **AC.3:** Build SW and packaging them sucessfully.
-- [ ] **AC.4:** Dependency vulnerability checks and license compliance validation.
-- [ ] **AC.5:** Artifact should be tagged with something that is traceable to the current commit.
+- [X] **AC.1:** Code quality checks (linting, security scanning, code coverage) executed automatically
+- [X] **AC.2:** Full test suite for functionality and component test.
+- [X] **AC.3:** Build SW and packaging them sucessfully.
+- [X] **AC.4:** Dependency vulnerability checks and license compliance validation.
+- [X] **AC.5:** Artifact should be tagged with something that is traceable to the current commit.
 - [ ] **AC.6:** Deployment should be run only when trigger manually.
 - [ ] **AC.7:** After Deployment success, check health running for a while before tear down the deployment to save resource.
 - [ ] **AC.8:** After Merge PR, clean all artifacts of the PR to save resource.

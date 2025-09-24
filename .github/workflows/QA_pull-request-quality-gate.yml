@@ -1,4 +1,4 @@
-name: Service CI/CD Pipeline
+name: QA Pull Request CI
 on:
   # For testing purpose
   workflow_dispatch:
@@ -38,9 +38,9 @@ on:
       deploy_token:
         required: true
 
-# [FSI-Compliant Reusable CI/CD Pipeline]-[AC.1]: All microservices will use this workflow 
 jobs:
   # 🛠️ Stage 1: Source Control & Validation
+  # [Mandatory Checklist at PR into QA]-[AC.1]: Automatic linting, static analysis.
   source-validation:
     runs-on: ubuntu-latest
     name: Lint and Static Analysis
@@ -48,14 +48,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.2]: Implement mandatory SAST
-      # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.3]: Implement quality gate with minimum 85% test coverage
       - name: Static code analysis
         run: |
           echo "Run SonarQube for Quality Gates"
           echo "Run SonarQube for SAST"
 
   # 🔍 Stage 2: Build & Compile & Testing
+  # [Mandatory Checklist at PR into QA]-[AC.2]: Full test suite for component and functionality.
+  # [Mandatory Checklist at PR into QA]-[AC.3]: Build and packaging the build artifact into Docker image for delivery
+  # [Mandatory Checklist at PR into QA]-[AC.5]: Build artifact shall be tagged with the current git commit
   build-test:
     uses: ./.github/workflows/_build-test-stage.yml
     with:
@@ -66,6 +67,7 @@ jobs:
       custom-build-script:  ${{ inputs.custom-build-script }}
 
   # 🔐 Stage 3: Security & Compliance Gate
+  # [Mandatory Checklist at PR into QA]-[AC.4]: Dependency vulnerability checks and license compliance validation
   compliance-check:
     needs: 
       - source-validation
