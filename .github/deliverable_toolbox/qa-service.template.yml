@@ -6,6 +6,13 @@ name: QA Workflow Services
 on:
   # [QA Workflow Toolbox]-[AC.3]: Manual Trigger Support
   workflow_dispatch:
+    inputs:
+      # Choose the functionality to run fast-feedback CI
+      service:
+        description: Service that need to 
+        required: true
+        type: string
+  # Any feature branch PR to QA or direct push to QA will trigger this workflow
   # [QA Workflow Toolbox]-[AC.2]: Automatic Trigger on QA Branch
   pull_request:
     types:
@@ -28,6 +35,7 @@ jobs:
     name: Setup configuration based on the trigger event
     runs-on: ubuntu-latest
     outputs:
+      service: ${{ steps.extract.outputs.service }}
       environment: ${{ steps.determine.outputs.environment }}
       has_open_pr_to_qa: ${{ steps.check_pr.outputs.has_open_pr_to_qa }}
     steps:
@@ -56,6 +64,47 @@ jobs:
             echo "has_open_pr_to_qa=false" >> $GITHUB_OUTPUT
           fi
 
+      # The git commit message following the git commit conventional
+      # In this case only four commit header type will trigger the test: 
+      #   - feat(<functionality>)
+      #   - test(<functionality>)
+      #   - refactor(<functionality>)
+      #   - perf(<functionality>)
+      - name: Extract functionality test scope based on git commit message
+        id: extract
+        run: |
+          #!/bin/bash
+
+          if [ -z "${{ github.event.inputs.service || '' }}" ]; then
+            COMMIT_MSG="${{ github.event.head_commit.message || github.event.pull_request.title }}"
+          else
+            COMMIT_MSG="test(${{ github.event.inputs.service }}): Manual triggered for CI feedback"
+          fi 
+          echo "Commit message: $COMMIT_MSG"
+
+          # Default if nothing matched
+          SERVICE="ALL"
+          
+          # Check for feat(<service>/<FUNCTIONALITY>) or feat(<service>)
+          if [[ "$COMMIT_MSG" =~ feat\(([a-zA-Z0-9_-]+)(/([a-zA-Z0-9_/-]+))?\) ]]; then
+            SERVICE="${BASH_REMATCH[1]}"
+          # Check for test(<service>/<FUNCTIONALITY>) or test(<service>)
+          elif [[ "$COMMIT_MSG" =~ test\(([a-zA-Z0-9_-]+)(/([a-zA-Z0-9_/-]+))?\) ]]; then
+            SERVICE="${BASH_REMATCH[1]}"
+          # Check for refactor(<service>/<FUNCTIONALITY>) or refactor(<service>)
+          elif [[ "$COMMIT_MSG" =~ refactor\(([a-zA-Z0-9_-]+)(/([a-zA-Z0-9_/-]+))?\) ]]; then
+            SERVICE="${BASH_REMATCH[1]}"
+          # Check for perf(<service>/<FUNCTIONALITY>) or perf(<service>)
+          elif [[ "$COMMIT_MSG" =~ perf\(([a-zA-Z0-9_-]+)(/([a-zA-Z0-9_/-]+))?\) ]]; then
+            SERVICE="${BASH_REMATCH[1]}"
+          fi
+
+          # Default values if nothing matched
+          if [ -z "$SERVICE" ]; then
+            SERVICE="ALL"
+          fi
+          echo "service=$SERVICE" >> $GITHUB_OUTPUT
+
   # [QA Workflow Toolbox]-[AC.3][AC.4]: Manual trigger fails if branch does not have PR to QA
   manual-trigger-branch-doest-not-have-pr-to-qa:
     name: Manual trigger on branch that does not have PR to QA
@@ -65,7 +114,7 @@ jobs:
     steps:
       - name: Fail the workflow
         run: |
-          echo "The branch '${{ github.event.inputs.pull_request_branch }}' does not have an open PR to QA."
+          echo "The branch '${{ github.ref_name }}' does not have an open PR to QA."
           echo "Please create a PR to QA before triggering this workflow manually."
           exit 1
 
@@ -81,15 +130,16 @@ jobs:
     with:
       # Mandatory inputs
       environment: ${{ needs.set-configuration.outputs.environment }}
-      service-name: <DUMMY_SERVICE>
+      service-name: ${{ needs.set-configuration.outputs.service }}
 
       # Custom
-      custom-test-script: <DUMMY_CUSTOM_TEST_SCRIPTS>
-      custom-build-script: <DUMMY_CUSTOM_BUILD_SCRIPTS>
-    
+      custom-test-script:   
+        ./.github/workflows/script/services-functionaliy-test.sh -s ${{ needs.set-configuration.outputs.service }} -t unit
+      custom-build-script:  
+        ./.github/workflows/script/services-functionaliy-test.sh -s ${{ needs.set-configuration.outputs.service }} -t int
     secrets:
       deploy_token: ${{ secrets.DEPLOY_TOKEN }}
-    
+
   call-merged-commit-ci-workflow:
     name: Quality Monitoring CI workflow
     needs: set-configuration
@@ -100,12 +150,12 @@ jobs:
     with:
       # Mandatory inputs
       environment: ${{ needs.set-configuration.outputs.environment }}
-      service-name: <DUMMY_SERVICE>
+      service-name: ${{ needs.set-configuration.outputs.service }}
 
-      # [New Merged Quality Healthcheck]-[AC.2]:  Full test suite for functionality and component test, 
-      #                                           shall be depend on the script (user's responsibility)
-      custom-test-script: <DUMMY_CUSTOM_TEST_SCRIPTS>
-      custom-build-script: <DUMMY_CUSTOM_BUILD_SCRIPTS>
-    
+      # Custom
+      custom-test-script:   
+        ./.github/workflows/script/services-functionaliy-test.sh -s ${{ needs.set-configuration.outputs.service }} -t unit
+      custom-build-script:  
+        ./.github/workflows/script/services-functionaliy-test.sh -s ${{ needs.set-configuration.outputs.service }} -t int
     secrets:
       deploy_token: ${{ secrets.DEPLOY_TOKEN }}    

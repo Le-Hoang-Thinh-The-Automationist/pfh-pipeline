@@ -13,6 +13,12 @@ on:
         required: true
         default: "ubuntu-latest"
       
+      service-name:
+        description: Service name to test
+        type: string
+        default: ""
+        required: false
+      
       custom-test-script:
         description: Custom script to test
         type: string
@@ -71,6 +77,7 @@ jobs:
         if: ${{ inputs.custom-test-script == '' }}
         run: 
           mvn -B clean test 
+        working-directory: "./${{ inputs.service-name }}"
 
       # [Parallel Test Suite Execution]-[AC.2]: Fail fast mechanism is depend on the input custom code
       - name: Run custom test script
@@ -82,6 +89,7 @@ jobs:
       - name: Dependencies analysis report
         run:
           mvn dependency:analyze
+        working-directory: "./${{ inputs.service-name }}"
 
   build-and-intergration-test:
     name: Build and Perform Integration Test
@@ -125,6 +133,7 @@ jobs:
         run:
           # [Automated Build & Test Execution]-[AC.6]: Build Docker image with tag contains git SHA
           docker build -t ${{ inputs.registry }}:${{ github.sha }} .
+        working-directory: "./${{ inputs.service-name }}"
 
       # [Fast Feedback at Commit Stage]-[AC.4]: Image size display here
       - name: Docker image size
@@ -134,7 +143,10 @@ jobs:
           docker history ${{ inputs.registry }}:${{ github.sha }}
           echo
           echo "Total Docker image size: $(docker image inspect ${{ inputs.registry }}:${{ github.sha }} --format='{{.Size}}' | numfmt --to=iec)"
+        working-directory: "./${{ inputs.service-name }}"
       
       # [Fast Feedback at Commit Stage]-[AC.6]: Image size display here
       - name: Clean docker image after build
-        run: docker rmi ${{ inputs.registry }}:${{ github.sha }}
+        run: 
+          docker rmi ${{ inputs.registry }}:${{ github.sha }}
+        working-directory: "./${{ inputs.service-name }}"
