@@ -28,18 +28,12 @@
 - [X] **AC.1:** Code quality checks (linting, security scanning, code coverage) executed automatically
 - [X] **AC.2:** Full test suite for functionality and component test.
 - [X] **AC.3:** Build SW and packaging them sucessfully.
-- [ ] **AC.4:** Dependency vulnerability checks and license compliance validation.
-      - [X] **AC.4.1:** Design concept & Boilerplate
-      - [ ] **AC.4.2:** Implementation (Will be implemented once the User Story for Security is given)
-- [ ] **AC.5:** Artifact should be tagged with something that is traceable to the current commit.
-      - [X] **AC.5.1:** Design concept & Boilerplate
-      - [ ] **AC.5.2:** Implementation (Will be implemented when the infrastructure provision pipeline exist)
+- [X] **AC.4:** Dependency vulnerability checks and license compliance validation.
+- [X] **AC.5:** Artifact should be tagged with something that is traceable to the current commit.
 - [ ] **AC.6:** Deployment should be run only when trigger manually.
-      - [X] **AC.6.1:** Design concept & Boilerplate
-      - [ ] **AC.6.2:** Implementation (Will be implemented when the infrastructure provision pipeline exist)
-- [ ] **AC.7:** Automatically add PIC for QA branch to PR's review if not already.
-      - [X] **AC.7.1:** Design concept & Boilerplate
-      - [ ] **AC.7.2:** Implementation (Will be implemented at another time)
+- [ ] **AC.7:** After Deployment success, check health running for a while before tear down the deployment to save resource.
+- [ ] **AC.8:** After Merge PR, clean all artifacts of the PR to save resource.
+- [ ] **AC.9:** Automatically add PIC for QA branch to PR's review if not already.
 
 ## **User Story: New Merged Quality Healthcheck**
 

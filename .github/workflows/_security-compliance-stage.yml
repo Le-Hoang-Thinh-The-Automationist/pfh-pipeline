@@ -11,7 +11,7 @@ on:
 
 jobs:
     security-and-compliance-check:
-        name: "[BOILERPLATE] Security and Compliance Check"
+        name: Security and Compliance Check
         runs-on: ${{ inputs.runner }}
 
         steps:
