@@ -10,7 +10,7 @@ on:
         required: false
         default: HEAD
         type: string
-      # Choose the service to run fast-feedback CI
+      # Choose the functionality to run fast-feedback CI
       functionality:
         description: Functionality of the service to run fast-feedback CI
         required: true
@@ -70,7 +70,7 @@ jobs:
         run: |
           #!/bin/bash
 
-          if [ -z "${{ github.event.inputs.functionality || '' }}"]; then
+          if [ -z "${{ github.event.inputs.functionality || '' }}" ]; then
             COMMIT_MSG="${{ github.event.head_commit.message }}"
           else
             COMMIT_MSG="test(${{ github.event.inputs.functionality }}): Manual triggered for CI feedback"

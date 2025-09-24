@@ -13,9 +13,9 @@
       - The `QA` branch  
       - Any feature branch intended to be merged into `QA`
 - [x] **AC.4 — Branch Parameterization for Manual Runs:**  When triggered manually, the workflow **accepts a branch name as an input parameter** and runs QA checks against that branch.  
-- [ ] **AC.5 — Consistent QA Checks:** Regardless of trigger type (auto or manual), the workflow executes the **same QA validation steps** (e.g., build, tests, linting, security scans) to ensure consistent results.  
-- [ ] **AC.6 — Execution Feedback:** The workflow **reports pass/fail status** and provides **detailed logs** for each QA check step in the Actions UI.
-- [ ] **AC.7 — Deliverable Ouput:** The output should be a workflow template where it can be given out to other user repositories without expose the detail workflow configuration
+- [X] **AC.5 — Consistent QA Checks:** Regardless of trigger type (auto or manual), the workflow executes the **same QA validation steps** (e.g., build, tests, linting, security scans) to ensure consistent results.  
+- [X] **AC.6 — Execution Feedback:** The workflow **reports pass/fail status** and provides **detailed logs** for each QA check step in the Actions UI.
+- [X] **AC.7 — Deliverable Ouput:** The output should be a workflow template where it can be given out to other user repositories without expose the detail workflow configuration
 
 ## **User Story: Mandatory Checklist at PR into QA**
 

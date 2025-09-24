@@ -1,3 +1,6 @@
+# [QA Workflow Toolbox]-[AC.7]: The template of QA workflow service can be 
+#                               delivered with some modifciation without exposing
+#                               too much CI detail from pipeline repository
 name: QA Workflow Services
 
 on:
@@ -18,7 +21,7 @@ on:
       - 'qa'
       - 'qa/**'
 
-run-name: "[QA]: ${{ github.event_name }} at ${{ github.ref_name }} (${{ github.sha }})"
+run-name: "[QA]_[${{ github.event_name }}]: ${{ github.event.head_commit.message || github.event.pull_request.title  }}. at ${{ github.ref_name }} (${{ github.sha }})"
 
 jobs:
   set-configuration:
@@ -86,3 +89,22 @@ jobs:
     
     secrets:
       deploy_token: ${{ secrets.DEPLOY_TOKEN }}
+    
+  call-merged-commit-ci-workflow:
+    name: Quality Monitoring CI workflow
+    needs: set-configuration
+    # [QA Workflow Toolbox]-[AC.5]: Either automatic push or manual trigger even on QA branch, should run the same workflows
+    if: ${{(github.event_name == 'push')  || (github.event_name == 'workflow_dispatch' && github.ref_name == 'qa' && startsWith(github.ref_name, 'qa/')) }} 
+    # [QA Workflow Toolbox]-[AC.6]: The detail report on pass/fail status and logs shall be provided be the workflow
+    uses: <DUMMY_CI_WORKFLOW_PATH>/QA_merged-commit-quality-gate.yml@<DUMMY_RELEASE_TAG>
+    with:
+      # Mandatory inputs
+      environment: ${{ needs.set-configuration.outputs.environment }}
+      service-name: <DUMMY_SERVICE>
+
+      # Custom
+      custom-test-script: <DUMMY_CUSTOM_TEST_SCRIPTS>
+      custom-build-script: <DUMMY_CUSTOM_BUILD_SCRIPTS>
+    
+    secrets:
+      deploy_token: ${{ secrets.DEPLOY_TOKEN }}    
