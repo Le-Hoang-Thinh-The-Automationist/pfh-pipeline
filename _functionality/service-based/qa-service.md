@@ -61,8 +61,15 @@
       - [X] **AC.5.1:** Design concept & Boilerplate
       - [ ] **AC.5.2:** Implementation (Will be implemented when the infrastructure provision pipeline exist)
 
-## **User Story: Latest QA Commit Status Tagging**
+## **User Story: Multi-Service Testing on QA environment**
 
-* **As a** QA engineer
-* **I want** new merged from QA to run full CI/CD and basic system testing
-* **So that** I can have a fast feedback on 
+* **As a** QA engineer and DevOps
+* **I want** a CD/CT to check for deployment and E2E testing, and other Non-functional testing 
+* **So that** I can quick check for releasable service
+
+- [ ] **AC.1:** Check infrastructure provision and environment configuration before deploy
+- [ ] **AC.2:** Deploy end-to-end services (UI, API-gateway, backend-services) on QA environment and check for time till running.
+- [ ] **AC.3:** Perform regression end-to-end test as default, can be configured to be disabled.
+- [ ] **AC.4:** Perform non-functional test as default, can be configured to be disabled.
+- [ ] **AC.5:** Teardown deployment at the end as default, can be configured to be disabled.
+- [ ] **AC.6:** The system's SLA, SLO and SLI for non-functional test should be configurable.
