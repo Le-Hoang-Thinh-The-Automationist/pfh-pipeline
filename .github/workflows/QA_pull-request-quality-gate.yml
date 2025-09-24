@@ -1,4 +1,4 @@
-name: Service CI/CD Pipeline
+name: QA Pull Request CI
 on:
   # For testing purpose
   workflow_dispatch:
@@ -38,24 +38,25 @@ on:
       deploy_token:
         required: true
 
-# [FSI-Compliant Reusable CI/CD Pipeline]-[AC.1]: All microservices will use this workflow 
 jobs:
   # 🛠️ Stage 1: Source Control & Validation
+  # [Mandatory Checklist at PR into QA]-[AC.1]: Automatic linting, static analysis.
   source-validation:
     runs-on: ubuntu-latest
-    name: Lint and Static Analysis
+    name: "[BOILERPLATE] Lint and Static Analysis"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.2]: Implement mandatory SAST
-      # [FSI-Compliant Reusable CI/CD Pipeline]-[AC.3]: Implement quality gate with minimum 85% test coverage
       - name: Static code analysis
         run: |
           echo "Run SonarQube for Quality Gates"
           echo "Run SonarQube for SAST"
 
   # 🔍 Stage 2: Build & Compile & Testing
+  # [Mandatory Checklist at PR into QA]-[AC.2]: Full test suite for component and functionality.
+  # [Mandatory Checklist at PR into QA]-[AC.3]: Build and packaging the build artifact into Docker image for delivery
+  # [Mandatory Checklist at PR into QA]-[AC.5]: Build artifact shall be tagged with the current git commit
   build-test:
     uses: ./.github/workflows/_build-test-stage.yml
     with:
@@ -65,21 +66,30 @@ jobs:
       custom-test-script:   ${{ inputs.custom-test-script }}
       custom-build-script:  ${{ inputs.custom-build-script }}
 
+  # [Mandatory Checklist at PR into QA]-[AC.7.1]: Automatically add PIC for QA branch to PR's review if not already (boilerplate)
+  mandatory-pr-reviewers:
+    runs-on: ubuntu-latest
+    needs: build-test
+    name: "[BOILERPLATE] Mandatory PR reviewers check"
+    steps:
+      - name: Add Mandatory PR reviewers
+        run: echo "Run Mandatory PR reviewers"
+
   # 🔐 Stage 3: Security & Compliance Gate
+  # [Mandatory Checklist at PR into QA]-[AC.4.1]: Dependency vulnerability checks and license compliance (boilerplate)
   compliance-check:
-    needs: 
-      - source-validation
-      - build-test
+    needs:
+      - mandatory-pr-reviewers
     uses: ./.github/workflows/_security-compliance-stage.yml
     with:
-      runner:               ubuntu-latest
+      runner: ubuntu-latest
 
   # 📦 Stage 4: Artifact Management
+  # [Mandatory Checklist at PR into QA]-[AC.5.1]: Actual artifact handling stage (boilerplate)
   artifact-handling:
     runs-on: ubuntu-latest
-    if: 
-      ${{ inputs.environment != 'Feature' }}
-    needs: compliance-check
+    needs: mandatory-pr-reviewers
+    name: "[BOILERPLATE] Artifact handling"
     steps:
       - name: Push Docker Image to Registry
         run: echo "Push Docker Image to Registry"
@@ -88,30 +98,14 @@ jobs:
         run: echo "Save Test report to Artifact" 
 
       - name: Save Security Audit log to Artifact
-        run: echo "Save Security Audit log to Artifact" 
+        run: echo "Save Security Audit log to Artifact"
 
-  # 🚀 Stage 5: Deploy & Release
+  # 📦 Stage 5: Deployment
+  # [Mandatory Checklist at PR into QA]-[AC.6.1]: Deployment should be run only when trigger manually (boilerplate)
   deploy:
     runs-on: ubuntu-latest
-    if: 
-      ${{ inputs.environment != 'Feature' }}
     needs: artifact-handling
+    name: "[BOILERPLATE] Approve for Deployment"
     steps:
-      - name: Push Docker Image to Registry
-        run: echo "Push Docker Image to Registry" 
-
-      - name: Deploy to selected environment
-        run: echo "Run deployment script"
-
-  # 📊 Stage 6: Monitor & Feedback
-  monitor:
-    runs-on: ubuntu-latest
-    if: 
-      ${{ inputs.environment != 'Feature' }}
-    needs: deploy
-    steps:
-      - name: Post-deployment checks
-        run: echo "Run health checks and performance monitoring"
-
-      - name: Notify stakeholders
-        run: echo "Send alerts or update dashboards"
+      - name: Manual trigger the "Deployment Workflows Service" to proceed with the deployment
+        run: echo "More detail, please check with the PIC for the deployment"
