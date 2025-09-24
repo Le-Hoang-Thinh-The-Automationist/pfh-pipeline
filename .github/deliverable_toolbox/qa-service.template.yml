@@ -102,7 +102,8 @@ jobs:
       environment: ${{ needs.set-configuration.outputs.environment }}
       service-name: <DUMMY_SERVICE>
 
-      # Custom
+      # [New Merged Quality Healthcheck]-[AC.2]:  Full test suite for functionality and component test, 
+      #                                           shall be depend on the script (user's responsibility)
       custom-test-script: <DUMMY_CUSTOM_TEST_SCRIPTS>
       custom-build-script: <DUMMY_CUSTOM_BUILD_SCRIPTS>
     

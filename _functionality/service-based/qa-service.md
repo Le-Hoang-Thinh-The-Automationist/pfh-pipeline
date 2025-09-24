@@ -50,14 +50,16 @@
 ✅ **Acceptance Criteria:**
 
 - [ ] **AC.1:** Code quality checks (linting, security scanning, code coverage) executed automatically
-- [ ] **AC.2:** Full test suite for functionality and component test.
-- [ ] **AC.3:** Build SW and packaging them sucessfully.
+  - [X] **AC.1.1:** - Boilerplate
+  - [ ] **AC.1.2:** - Implement (Will be implemented when new User Story for integrated external server)
+- [X] **AC.2:** Full test suite for functionality and component test.
+- [X] **AC.3:** Build SW and packaging them sucessfully.
 - [ ] **AC.4:** Dependency vulnerability checks and license compliance validation.
-- [ ] **AC.5:** QA should approve manually to continue deploy, else fails.
-- [ ] **AC.6:** Deploy end-to-end services (UI, API-gateway, backend-services, infrastructure) on QA environment and check for time till running.
-- [ ] **AC.7:** Perform regression end-to-end test as default, disable if to trigger manually.
-- [ ] **AC.8:** Perform performance test as default, disable if to trigger manually.
-- [ ] **AC.9:** Teardown deployment at the end as default, disable if trigger manually.
+      - [X] **AC.4.1:** Design concept & Boilerplate
+      - [ ] **AC.4.2:** Implementation (Will be implemented once the User Story for Security is given)
+- [ ] **AC.5:** Deployment should be run only when trigger manually.
+      - [X] **AC.5.1:** Design concept & Boilerplate
+      - [ ] **AC.5.2:** Implementation (Will be implemented when the infrastructure provision pipeline exist)
 
 ## **User Story: Latest QA Commit Status Tagging**
 

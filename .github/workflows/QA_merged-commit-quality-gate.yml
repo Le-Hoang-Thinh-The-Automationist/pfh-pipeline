@@ -1,4 +1,4 @@
-name: Service CI/CD Pipeline
+name: Quality Monitoring CI
 on:
   # For testing purpose
   workflow_dispatch:
@@ -36,9 +36,10 @@ on:
 
 jobs:
   # 🛠️ Stage 1: Source Control & Validation
+  # [New Merged Quality Healthcheck]-[AC.1.1]: (Boilerplate) Code quality checks (linting, security scanning, code coverage) executed automatically
   source-validation:
     runs-on: ubuntu-latest
-    name: Lint and Static Analysis
+    name: "[BOILERPLATE] Lint and Static Analysis"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -49,6 +50,9 @@ jobs:
           echo "Run SonarQube for SAST"
 
   # 🔍 Stage 2: Build & Compile & Testing
+  # [New Merged Quality Healthcheck]-[AC.2]:  Full test suite for functionality and component test
+  # [New Merged Quality Healthcheck]-[AC.3]:  Build SW and packaging them sucessfully, detail 
+  #                                           implementation should be checked in the 'uses'
   build-test:
     uses: ./.github/workflows/_build-test-stage.yml
     with:
@@ -59,6 +63,7 @@ jobs:
       custom-build-script:  ${{ inputs.custom-build-script }}
 
   # 🔐 Stage 3: Security & Compliance Gate
+  # [[New Merged Quality Healthcheck]-[AC.4.1]: (boilerplate) Dependency vulnerability checks and license compliance 
   compliance-check:
     needs: 
       - source-validation
@@ -71,6 +76,7 @@ jobs:
   artifact-handling:
     runs-on: ubuntu-latest
     needs: compliance-check
+    name: "[BOILERPLATE] Artifact handling"
     steps:
       - name: Push Docker Image to Registry
         run: echo "Push Docker Image to Registry"
@@ -81,24 +87,12 @@ jobs:
       - name: Save Security Audit log to Artifact
         run: echo "Save Security Audit log to Artifact" 
 
-  # 🚀 Stage 5: Deploy & Release
+  # 📦 Stage 5: Deployment
+  # [[New Merged Quality Healthcheck]-[AC.5.1]: Deployment should be run only when trigger manually (boilerplate)
   deploy:
     runs-on: ubuntu-latest
     needs: artifact-handling
+    name: "[BOILERPLATE] Approve for Deployment"
     steps:
-      - name: Push Docker Image to Registry
-        run: echo "Push Docker Image to Registry" 
-
-      - name: Deploy to selected environment
-        run: echo "Run deployment script"
-
-  # 📊 Stage 6: Monitor & Feedback
-  monitor:
-    runs-on: ubuntu-latest
-    needs: deploy
-    steps:
-      - name: Post-deployment checks
-        run: echo "Run health checks and performance monitoring"
-
-      - name: Notify stakeholders
-        run: echo "Send alerts or update dashboards"
+      - name: Manual trigger the "Deployment Workflows Service" to proceed with the deployment
+        run: echo "More detail, please check with the PIC for the deployment"
