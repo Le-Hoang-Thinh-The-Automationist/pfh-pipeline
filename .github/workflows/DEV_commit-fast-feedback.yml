@@ -61,7 +61,7 @@ jobs:
   # [Fast Feedback at Commit Stage]-[AC.1]: Automatic linting and static analysis.
   source-validation:
     runs-on: ubuntu-latest
-    name: Lint and Static Analysis
+    name: "[BOILERPLATE] Lint and Static Analysis"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

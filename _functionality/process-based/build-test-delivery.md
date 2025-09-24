@@ -1,4 +1,4 @@
-# Build and Test Stage Functionality
+# Build, Test and Delivery Process for Service
 ## **User Story: Automated Build & Test Execution**
 
 * **As a** developer
@@ -30,3 +30,20 @@
 - [ ] **AC.4:** Flaky test detection automatically retries unstable tests up to 3 times
 - [X] **AC.5:** Test execution time trends tracked to identify performance degradation
 - [X] **AC.6:** Test reports include detailed failure analysis and stack traces
+
+---
+
+## **User Story: Build Performance Optimization**
+
+* **As a** DevOps engineer
+* **I want** build and test performance continuously optimized
+* **So that** developer productivity remains high and waste is eliminated
+
+✅ **Acceptance Criteria:**
+
+- [ ] **AC.1:** Build cache utilized to avoid rebuilding unchanged dependencies
+- [ ] **AC.2:** Test cache prevents re-running tests for unchanged code modules
+- [ ] **AC.3:** Build performance metrics tracked (build time, test time, cache hit rate)
+- [ ] **AC.4:** Slow tests identified and flagged for optimization or parallelization
+- [ ] **AC.5:** Resource utilization optimized (CPU, memory) to reduce cloud costs
+- [ ] **AC.6:** Build performance regression alerts when times increase by >20%
