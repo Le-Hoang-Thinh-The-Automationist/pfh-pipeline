@@ -1,4 +1,4 @@
-name: Quality Monitoring CI
+name: Service CI/CD Pipeline
 on:
   # For testing purpose
   workflow_dispatch:
