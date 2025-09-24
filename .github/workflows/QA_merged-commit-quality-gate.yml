@@ -1,0 +1,104 @@
+name: Service CI/CD Pipeline
+on:
+  # For testing purpose
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Choose an environment for testing
+        required: true
+        type: choice
+        options:
+          - QA
+
+  workflow_call:
+    inputs:
+      # ============ INPUT CONFIGURATION ============
+      environment:
+        required: true
+        type: string
+      service-name:
+        required: true
+        type: string
+
+      # ============ CUSTOM SCRIPT ============
+      custom-test-script:
+        description: Custom script to test
+        type: string
+        required: false
+      custom-build-script:
+        description: Custom script to build
+        type: string
+        required: false    
+
+    secrets:
+      deploy_token:
+        required: true
+
+jobs:
+  # 🛠️ Stage 1: Source Control & Validation
+  source-validation:
+    runs-on: ubuntu-latest
+    name: Lint and Static Analysis
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Static code analysis
+        run: |
+          echo "Run SonarQube for Quality Gates"
+          echo "Run SonarQube for SAST"
+
+  # 🔍 Stage 2: Build & Compile & Testing
+  build-test:
+    uses: ./.github/workflows/_build-test-stage.yml
+    with:
+      runner:               ubuntu-latest
+      registry:             false
+      report:               false
+      custom-test-script:   ${{ inputs.custom-test-script }}
+      custom-build-script:  ${{ inputs.custom-build-script }}
+
+  # 🔐 Stage 3: Security & Compliance Gate
+  compliance-check:
+    needs: 
+      - source-validation
+      - build-test
+    uses: ./.github/workflows/_security-compliance-stage.yml
+    with:
+      runner:               ubuntu-latest
+
+  # 📦 Stage 4: Artifact Management
+  artifact-handling:
+    runs-on: ubuntu-latest
+    needs: compliance-check
+    steps:
+      - name: Push Docker Image to Registry
+        run: echo "Push Docker Image to Registry"
+
+      - name: Save Test report to Artifact
+        run: echo "Save Test report to Artifact" 
+
+      - name: Save Security Audit log to Artifact
+        run: echo "Save Security Audit log to Artifact" 
+
+  # 🚀 Stage 5: Deploy & Release
+  deploy:
+    runs-on: ubuntu-latest
+    needs: artifact-handling
+    steps:
+      - name: Push Docker Image to Registry
+        run: echo "Push Docker Image to Registry" 
+
+      - name: Deploy to selected environment
+        run: echo "Run deployment script"
+
+  # 📊 Stage 6: Monitor & Feedback
+  monitor:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Post-deployment checks
+        run: echo "Run health checks and performance monitoring"
+
+      - name: Notify stakeholders
+        run: echo "Send alerts or update dashboards"
