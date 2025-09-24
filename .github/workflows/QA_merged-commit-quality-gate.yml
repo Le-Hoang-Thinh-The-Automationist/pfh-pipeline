@@ -59,6 +59,7 @@ jobs:
       runner:               ubuntu-latest
       registry:             false
       report:               false
+      service-name:         ${{ inputs.service-name }}
       custom-test-script:   ${{ inputs.custom-test-script }}
       custom-build-script:  ${{ inputs.custom-build-script }}
 
