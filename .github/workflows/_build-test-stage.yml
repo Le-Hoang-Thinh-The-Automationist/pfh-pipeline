@@ -40,16 +40,6 @@ on:
         required: false
         default: true
 
-      package-type:
-        description: "Package type"
-        required: false
-        type: string
-
-      package-version:
-        description: "Package version"
-        required: false
-        type: string
-
 # [Automated Build & Test Execution]-[AC.3]: Build is complete within 5 minutes for Commit Stage CI/CD.
 # [Automated Build & Test Execution]-[AC.5]: Build logs can be search the GitHub logs itself.
 # [Parallel Test Suite Execution]-[AC.1]: Unit test and integration test execute in parallel
@@ -64,12 +54,22 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github
+            ${{ inputs.service-name }}
+
+      - name: Read Configuration
+        id: config
+        uses: pietrobolcato/action-read-yaml@1.1.0
+        with:
+          config: ./${{  inputs.service-name }}/cicd-config.yml
 
       - name: Maven Package Management
-        if: ${{ inputs.package-type == 'mvn' }}
+        if: ${{ steps.config.outputs['ci_config.package_management.mvn.enabled'] == 'true' }}
         uses: ./.github/actions/dependencies-install/mvn
         with:
-          java-version: ${{ inputs.package-version }}
+          java-version: ${{ steps.config.outputs['ci_config.package_management.mvn.java_version'] }}
           service-name: ${{ inputs.service-name }}
 
       # [Parallel Test Suite Execution]-[AC.2]: Fail fast mechanism is depend on the input custom code
@@ -87,12 +87,22 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github
+            ${{ inputs.service-name }}
+
+      - name: Read Configuration
+        id: config
+        uses: pietrobolcato/action-read-yaml@1.1.0
+        with:
+          config: ./${{  inputs.service-name }}/cicd-config.yml
 
       - name: Maven Package Management
-        if: ${{ inputs.package-type == 'mvn' }}
+        if: ${{ steps.config.outputs['ci_config.package_management.mvn.enabled'] == 'true' }}
         uses: ./.github/actions/dependencies-install/mvn
         with:
-          java-version: ${{ inputs.package-version }}
+          java-version: ${{ steps.config.outputs['ci_config.package_management.mvn.java_version'] }}
           service-name: ${{ inputs.service-name }}
 
       # [Parallel Test Suite Execution]-[AC.2]: Fail fast mechanism is depend on the input custom code
