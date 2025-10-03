@@ -1,9 +1,9 @@
 name: Build & Test Stage
 
 on:
-  # [Automated Build & Test Execution]-[AC.1]: 
-  #   If the caller call this workflow, then it will automatically triggered 
-  #   according to the event trigger of the caller. In this case the caller 
+  # [Automated Build & Test Execution]-[AC.1]:
+  #   If the caller call this workflow, then it will automatically triggered
+  #   according to the event trigger of the caller. In this case the caller
   #   should be config to be trigger CI build with event push
   workflow_call:
     inputs:
@@ -12,18 +12,18 @@ on:
         type: string
         required: true
         default: "ubuntu-latest"
-      
+
       service-name:
         description: Service name to test
         type: string
         default: ""
         required: false
-      
+
       custom-test-script:
         description: Custom script to test
         type: string
         required: false
-      
+
       custom-build-script:
         description: Custom script to build
         type: string
@@ -40,6 +40,16 @@ on:
         required: false
         default: true
 
+      package-type:
+        description: "Package type"
+        required: false
+        type: string
+
+      package-version:
+        description: "Package version"
+        required: false
+        type: string
+
 # [Automated Build & Test Execution]-[AC.3]: Build is complete within 5 minutes for Commit Stage CI/CD.
 # [Automated Build & Test Execution]-[AC.5]: Build logs can be search the GitHub logs itself.
 # [Parallel Test Suite Execution]-[AC.1]: Unit test and integration test execute in parallel
@@ -55,79 +65,40 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - name: Maven Package Management
+        if: ${{ inputs.package-type == 'mvn' }}
+        uses: ./.github/actions/dependencies-install/mvn
         with:
-          distribution: temurin
-          java-version: 21
-
-      # [Automated Build & Test Execution]-[AC.3]: Build must finish fast → caching + container keeps runtime < 5 min
-      - name: Set up caching for Maven dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          # Hashing pom.xml's content -> If content 
-          # changes, mean the dependency must also change 
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      # [Automated Build & Test Execution]-[AC.3]: Build must finish fast → caching + container keeps runtime < 5 min
-      - name: Java unit test
-        if: ${{ inputs.custom-test-script == '' }}
-        run: 
-          mvn -B clean test 
-        working-directory: "./${{ inputs.service-name }}"
+          java-version: ${{ inputs.package-version }}
+          service-name: ${{ inputs.service-name }}
 
       # [Parallel Test Suite Execution]-[AC.2]: Fail fast mechanism is depend on the input custom code
       - name: Run custom test script
         if: ${{ inputs.custom-test-script != '' }}
-        run: 
-          bash ${{ inputs.custom-test-script }}       
-
-      # [Fast Feedback at Commit Stage]-[AC.4]: Trash dependencies detection, any unused packages will be displayed here
-      - name: Dependencies analysis report
-        run:
-          mvn dependency:analyze
-        working-directory: "./${{ inputs.service-name }}"
+        run: bash ${{ inputs.custom-test-script }}
 
   build-and-intergration-test:
     name: Build and Perform Integration Test
-    # [Automated Build & Test Execution]-[AC.2]: 
+    # [Automated Build & Test Execution]-[AC.2]:
     #   Use containerized build environment (Docker image with JDK + Maven/Gradle) to ensure
-    #   all stage will run with the same environement. 
+    #   all stage will run with the same environement.
     runs-on: ${{ inputs.runner }}
-        
+
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - name: Maven Package Management
+        if: ${{ inputs.package-type == 'mvn' }}
+        uses: ./.github/actions/dependencies-install/mvn
         with:
-          distribution: temurin
-          java-version: 21
+          java-version: ${{ inputs.package-version }}
+          service-name: ${{ inputs.service-name }}
 
-      # [Automated Build & Test Execution]-[AC.3]: Build must finish fast → caching + container keeps runtime < 5 min
-      - name: Set up caching for Maven dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          # Hashing pom.xml's content -> If content 
-          # changes, mean the dependency must also change 
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      
-      - name: Java Application Build
-        if: ${{ inputs.custom-build-script == '' }}
-        run: 
-          mvn -B clean package 
       # [Parallel Test Suite Execution]-[AC.2]: Fail fast mechanism is depend on the input custom code
       - name: Run custom build script
         if: ${{ inputs.custom-build-script != '' }}
-        run: 
-          bash ${{ inputs.custom-build-script }}
+        run: bash ${{ inputs.custom-build-script }}
 
       - name: Containerized application with Docker
         run:
@@ -144,9 +115,8 @@ jobs:
           echo
           echo "Total Docker image size: $(docker image inspect ${{ inputs.registry }}:${{ github.sha }} --format='{{.Size}}' | numfmt --to=iec)"
         working-directory: "./${{ inputs.service-name }}"
-      
+
       # [Fast Feedback at Commit Stage]-[AC.6]: Image size display here
       - name: Clean docker image after build
-        run: 
-          docker rmi ${{ inputs.registry }}:${{ github.sha }}
+        run: docker rmi ${{ inputs.registry }}:${{ github.sha }}
         working-directory: "./${{ inputs.service-name }}"
