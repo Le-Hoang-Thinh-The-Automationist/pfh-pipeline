@@ -107,6 +107,9 @@ jobs:
           sparse-checkout: |
             .github/actions
 
+      - name: DEBUG
+        run: bash ls -R
+
       - name: Read Configuration
         id: config
         uses: pietrobolcato/action-read-yaml@1.1.0
