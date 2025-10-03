@@ -59,6 +59,13 @@ jobs:
             .github
             ${{ inputs.service-name }}
 
+      - name: Checkout actions library
+        uses: actions/checkout@v4
+        with:
+          repository: "Le-Hoang-Thinh-The-Automationist/pfh-pipeline"
+          ref: "feature/2-pipeline-feat-add-a-compatible-cis-build-test-delivery-for-frontend"
+          path: .github/actions
+
       - name: Read Configuration
         id: config
         uses: pietrobolcato/action-read-yaml@1.1.0
@@ -91,6 +98,13 @@ jobs:
           sparse-checkout: |
             .github
             ${{ inputs.service-name }}
+
+      - name: Checkout actions library
+        uses: actions/checkout@v4
+        with:
+          repository: "Le-Hoang-Thinh-The-Automationist/pfh-pipeline"
+          ref: "feature/2-pipeline-feat-add-a-compatible-cis-build-test-delivery-for-frontend"
+          path: .github/actions
 
       - name: Read Configuration
         id: config
