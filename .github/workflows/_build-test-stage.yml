@@ -107,6 +107,7 @@ jobs:
           path: pipeline
           sparse-checkout: |
             .github/actions
+          sparse-checkout-cone-mode: false
 
       - name: DEBUG
         run: ls -R $GITHUB_WORKSPACE
