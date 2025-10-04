@@ -64,7 +64,7 @@ jobs:
         with:
           repository: "Le-Hoang-Thinh-The-Automationist/pfh-pipeline"
           ref: "feature/2-pipeline-feat-add-a-compatible-cis-build-test-delivery-for-frontend"
-          path: .github/actions
+          path: pipeline
 
       - name: Read Configuration
         id: config
@@ -105,9 +105,6 @@ jobs:
           repository: "Le-Hoang-Thinh-The-Automationist/pfh-pipeline"
           ref: "feature/2-pipeline-feat-add-a-compatible-cis-build-test-delivery-for-frontend"
           path: pipeline
-
-      - name: DEBUG
-        run: ls -aR $GITHUB_WORKSPACE
 
       - name: Read Configuration
         id: config
