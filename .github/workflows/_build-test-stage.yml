@@ -79,6 +79,13 @@ jobs:
           java-version: ${{ steps.config.outputs['ci_config.package_management.mvn.java_version'] }}
           service-name: ${{ inputs.service-name }}
 
+      - name: Nodes Package Management
+        if: ${{ steps.config.outputs['ci_config.package_management.npm.enabled'] == 'true' }}
+        uses: ./pipeline/.github/actions/dependencies-install/npm
+        with:
+          java-version: ${{ steps.config.outputs['ci_config.package_management.npm.node_version'] }}
+          service-name: ${{ inputs.service-name }}
+
       # [Parallel Test Suite Execution]-[AC.2]: Fail fast mechanism is depend on the input custom code
       - name: Run custom test script
         if: ${{ inputs.custom-test-script != '' }}
@@ -117,6 +124,13 @@ jobs:
         uses: ./pipeline/.github/actions/dependencies-install/mvn
         with:
           java-version: ${{ steps.config.outputs['ci_config.package_management.mvn.java_version'] }}
+          service-name: ${{ inputs.service-name }}
+
+      - name: Nodes Package Management
+        if: ${{ steps.config.outputs['ci_config.package_management.npm.enabled'] == 'true' }}
+        uses: ./pipeline/.github/actions/dependencies-install/npm
+        with:
+          java-version: ${{ steps.config.outputs['ci_config.package_management.npm.node_version'] }}
           service-name: ${{ inputs.service-name }}
 
       # [Parallel Test Suite Execution]-[AC.2]: Fail fast mechanism is depend on the input custom code
