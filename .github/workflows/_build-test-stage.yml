@@ -104,7 +104,9 @@ jobs:
         with:
           repository: "Le-Hoang-Thinh-The-Automationist/pfh-pipeline"
           ref: "feature/2-pipeline-feat-add-a-compatible-cis-build-test-delivery-for-frontend"
-          path: pipeline
+          sparse-checkout: |
+            .github/actions
+          sparse-checkout-cone-mode: false
 
       - name: DEBUG
         run: ls -aR $GITHUB_WORKSPACE
