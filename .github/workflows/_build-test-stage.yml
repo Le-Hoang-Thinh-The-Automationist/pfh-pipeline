@@ -108,7 +108,10 @@ jobs:
             .github/actions
 
       - name: DEBUG
-        run: ls -R
+        run: |
+          #!/bin/bash
+          pwd
+          ls -R
 
       - name: Read Configuration
         id: config
