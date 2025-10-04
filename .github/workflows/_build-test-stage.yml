@@ -106,7 +106,7 @@ jobs:
           ref: "feature/2-pipeline-feat-add-a-compatible-cis-build-test-delivery-for-frontend"
           path: pipeline
           sparse-checkout: |
-            .github/actions
+            .github
           sparse-checkout-cone-mode: false
 
       - name: DEBUG
