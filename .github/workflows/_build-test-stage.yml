@@ -107,7 +107,7 @@ jobs:
           path: pipeline
 
       - name: DEBUG
-        run: ls -R $GITHUB_WORKSPACE
+        run: ls -aR $GITHUB_WORKSPACE
 
       - name: Read Configuration
         id: config
