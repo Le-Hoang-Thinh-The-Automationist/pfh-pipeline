@@ -34,4 +34,5 @@ runs:
     # [Fast Feedback at Commit Stage]-[AC.4]: Trash dependencies detection, any unused packages will be displayed here
     - name: Dependencies installation with Maven
       run: mvn dependency:resolve
+      shell: bash
       working-directory: "./${{ inputs.service-name }}"
