@@ -74,14 +74,14 @@ jobs:
 
       - name: Maven Package Management
         if: ${{ steps.config.outputs['ci_config.package_management.mvn.enabled'] == 'true' }}
-        uses: ./pipeline/.github/actions/dependencies/installation/mvn
+        uses: ./pipeline/.github/actions/build-test-delivery/dependencies/installation/mvn
         with:
           java-version: ${{ steps.config.outputs['ci_config.package_management.mvn.java_version'] }}
           service-name: ${{ inputs.service-name }}
 
       - name: Nodes Package Management
         if: ${{ steps.config.outputs['ci_config.package_management.npm.enabled'] == 'true' }}
-        uses: ./pipeline/.github/actions/dependencies/installation/npm
+        uses: ./pipeline/.github/actions/build-test-delivery/dependencies/installation/npm
         with:
           node-version: ${{ steps.config.outputs['ci_config.package_management.npm.node_version'] }}
           service-name: ${{ inputs.service-name }}
@@ -121,14 +121,14 @@ jobs:
 
       - name: Maven Package Management
         if: ${{ steps.config.outputs['ci_config.package_management.mvn.enabled'] == 'true' }}
-        uses: ./pipeline/.github/actions/dependencies/installation/mvn
+        uses: ./pipeline/.github/actions/build-test-delivery/dependencies/installation/mvn
         with:
           java-version: ${{ steps.config.outputs['ci_config.package_management.mvn.java_version'] }}
           service-name: ${{ inputs.service-name }}
 
       - name: Nodes Package Management
         if: ${{ steps.config.outputs['ci_config.package_management.npm.enabled'] == 'true' }}
-        uses: ./pipeline/.github/actions/dependencies/installation/npm
+        uses: ./pipeline/.github/actions/build-test-delivery/dependencies/installation/npm
         with:
           node-version: ${{ steps.config.outputs['ci_config.package_management.npm.node_version'] }}
           service-name: ${{ inputs.service-name }}
