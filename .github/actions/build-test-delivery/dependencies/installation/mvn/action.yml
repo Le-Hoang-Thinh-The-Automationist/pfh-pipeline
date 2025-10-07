@@ -1,5 +1,5 @@
-name: "Maven de"
-description: "Runs a Maven build"
+name: "Maven installation"
+description: "Runs a Maven installation"
 
 inputs:
   java-version:

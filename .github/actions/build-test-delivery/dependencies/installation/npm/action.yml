@@ -1,4 +1,4 @@
-name: "NPM de"
+name: "NPM installation"
 description: "Runs an npm install"
 
 inputs:
