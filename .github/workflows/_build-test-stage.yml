@@ -58,7 +58,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: "Le-Hoang-Thinh-The-Automationist/pfh-pipeline"
-          ref: "feature/2-pipeline-feat-add-a-compatible-cis-build-test-delivery-for-frontend"
+          ref: "main"
           path: pipeline
 
       - name: Read Configuration
