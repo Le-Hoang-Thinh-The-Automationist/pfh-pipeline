@@ -1,31 +1,31 @@
 name: DEV Commit Fast Feedback
 on:
-  # For Testing purpose, trigger this workflow on push to any branch except main, prod, stag, qa 
+  # For Testing purpose, trigger this workflow on push to any branch except main, prod, stag, qa
   workflow_dispatch:
     inputs:
-        # ============ INPUT CONFIGURATION ============
-        service-name:
-            description: Name of the service
-            required: true
-            type: string
-    
-        # ============ CUSTOM SCRIPT ============
-        custom-test-script:
-            description: Custom script to test
-            type: string
-            required: false
-            
-        custom-build-script:
-            description: Custom script to build
-            type: string
-            required: false
+      # ============ INPUT CONFIGURATION ============
+      service-name:
+        description: Name of the service
+        required: true
+        type: string
 
-        # ============ ADDITIONAL STAGE ============
-        security-and-compliance-check-enable:
-            description: Enable security and compliance check stage (true/false)
-            type: boolean
-            required: false
-            default: false
+      # ============ CUSTOM SCRIPT ============
+      custom-test-script:
+        description: Custom script to test
+        type: string
+        required: false
+
+      custom-build-script:
+        description: Custom script to build
+        type: string
+        required: false
+
+      # ============ ADDITIONAL STAGE ============
+      security-and-compliance-check-enable:
+        description: Enable security and compliance check stage (true/false)
+        type: boolean
+        required: false
+        default: false
 
   workflow_call:
     inputs:
@@ -42,19 +42,18 @@ on:
       custom-build-script:
         description: Custom script to build
         type: string
-        required: false    
+        required: false
 
       # ============ ADDITIONAL STAGE ============
       security-and-compliance-check-enable:
-          description: Enable security and compliance check stage (true/false)
-          type: boolean
-          required: false
-          default: false
+        description: Enable security and compliance check stage (true/false)
+        type: boolean
+        required: false
+        default: false
 
     secrets:
       deploy_token:
         required: true
-
 
 jobs:
   # 🛠️ Stage 1: Source Control & Validation
@@ -79,20 +78,19 @@ jobs:
   build-test:
     uses: ./.github/workflows/_build-test-stage.yml
     with:
-      runner:               ubuntu-latest
-      registry:             false
-      report:               false
-      service-name:         ${{ inputs.service-name }}
-      custom-test-script:   ${{ inputs.custom-test-script }}
-      custom-build-script:  ${{ inputs.custom-build-script }}
+      runner: ubuntu-latest
+      report: false
+      service-name: ${{ inputs.service-name }}
+      custom-test-script: ${{ inputs.custom-test-script }}
+      custom-build-script: ${{ inputs.custom-build-script }}
 
   # 🔐 Stage 3: Security & Compliance Gate
   # [Fast Feedback at Commit Stage]-[AC.5]: Optional security and compliance check stage
   security-and-compliance-check:
     if: ${{ inputs.security-and-compliance-check-enable ==  true  }}
-    needs: 
+    needs:
       - source-validation
       - build-test
     uses: ./.github/workflows/_security-compliance-stage.yml
     with:
-      runner:               ubuntu-latest
+      runner: ubuntu-latest
