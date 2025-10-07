@@ -1,0 +1,27 @@
+version: "1"
+ci_config:
+  # Configuration for package management  
+  package_management:
+    # For Java Version and using Maven
+    mvn:
+      enabled: true
+      version: "3.9.9"
+      java_version: "17"
+    # For JavaScript Version and using NPM
+    npm:
+      enabled: true
+      node_version: "20.19.0"
+
+  # Configuration for delivery management choices
+  delivery_management:
+    # Containerization choice
+    container:
+      type: docker
+      registry:
+        url: ecr.com
+
+
+
+      
+
+    
