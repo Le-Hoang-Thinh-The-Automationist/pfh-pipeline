@@ -1,9 +1,9 @@
 name: Build & Test Stage
 
 on:
-  # [Automated Build & Test Execution]-[AC.1]: 
-  #   If the caller call this workflow, then it will automatically triggered 
-  #   according to the event trigger of the caller. In this case the caller 
+  # [Automated Build & Test Execution]-[AC.1]:
+  #   If the caller call this workflow, then it will automatically triggered
+  #   according to the event trigger of the caller. In this case the caller
   #   should be config to be trigger CI build with event push
   workflow_call:
     inputs:
@@ -12,28 +12,23 @@ on:
         type: string
         required: true
         default: "ubuntu-latest"
-      
+
       service-name:
         description: Service name to test
         type: string
         default: ""
         required: false
-      
+
       custom-test-script:
         description: Custom script to test
         type: string
         required: false
-      
+
       custom-build-script:
         description: Custom script to build
         type: string
         required: false
 
-      registry:
-        description: "Enable container registry access (true/false)"
-        type: string
-        required: false
-        default: "false"
       report:
         description: "Enable regression report upload (true/false)"
         type: boolean
@@ -54,99 +49,93 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: 21
+          sparse-checkout: |
+            .github
+            ${{ inputs.service-name }}
 
-      # [Automated Build & Test Execution]-[AC.3]: Build must finish fast → caching + container keeps runtime < 5 min
-      - name: Set up caching for Maven dependencies
-        uses: actions/cache@v4
+      - name: Checkout actions library
+        uses: actions/checkout@v4
         with:
-          path: ~/.m2/repository
-          # Hashing pom.xml's content -> If content 
-          # changes, mean the dependency must also change 
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          repository: "Le-Hoang-Thinh-The-Automationist/pfh-pipeline"
+          ref: "main"
+          path: pipeline
 
-      # [Automated Build & Test Execution]-[AC.3]: Build must finish fast → caching + container keeps runtime < 5 min
-      - name: Java unit test
-        if: ${{ inputs.custom-test-script == '' }}
-        run: 
-          mvn -B clean test 
-        working-directory: "./${{ inputs.service-name }}"
+      - name: Read Configuration
+        id: config
+        uses: pietrobolcato/action-read-yaml@1.1.0
+        with:
+          config: ./${{  inputs.service-name }}/cicd-config.yml
+
+      - name: Maven Package Management
+        if: ${{ steps.config.outputs['ci_config.package_management.mvn.enabled'] == 'true' }}
+        uses: ./pipeline/.github/actions/build-test-delivery/dependencies/installation/mvn
+        with:
+          java-version: ${{ steps.config.outputs['ci_config.package_management.mvn.java_version'] }}
+          service-name: ${{ inputs.service-name }}
+
+      - name: Nodes Package Management
+        if: ${{ steps.config.outputs['ci_config.package_management.npm.enabled'] == 'true' }}
+        uses: ./pipeline/.github/actions/build-test-delivery/dependencies/installation/npm
+        with:
+          node-version: ${{ steps.config.outputs['ci_config.package_management.npm.node_version'] }}
+          service-name: ${{ inputs.service-name }}
 
       # [Parallel Test Suite Execution]-[AC.2]: Fail fast mechanism is depend on the input custom code
       - name: Run custom test script
         if: ${{ inputs.custom-test-script != '' }}
-        run: 
-          bash ${{ inputs.custom-test-script }}       
-
-      # [Fast Feedback at Commit Stage]-[AC.4]: Trash dependencies detection, any unused packages will be displayed here
-      - name: Dependencies analysis report
-        run:
-          mvn dependency:analyze
-        working-directory: "./${{ inputs.service-name }}"
+        run: bash ${{ inputs.custom-test-script }}
 
   build-and-intergration-test:
     name: Build and Perform Integration Test
-    # [Automated Build & Test Execution]-[AC.2]: 
+    # [Automated Build & Test Execution]-[AC.2]:
     #   Use containerized build environment (Docker image with JDK + Maven/Gradle) to ensure
-    #   all stage will run with the same environement. 
+    #   all stage will run with the same environement.
     runs-on: ${{ inputs.runner }}
-        
+
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: 21
+          sparse-checkout: |
+            .github
+            ${{ inputs.service-name }}
 
-      # [Automated Build & Test Execution]-[AC.3]: Build must finish fast → caching + container keeps runtime < 5 min
-      - name: Set up caching for Maven dependencies
-        uses: actions/cache@v4
+      - name: Checkout actions library
+        uses: actions/checkout@v4
         with:
-          path: ~/.m2/repository
-          # Hashing pom.xml's content -> If content 
-          # changes, mean the dependency must also change 
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      
-      - name: Java Application Build
-        if: ${{ inputs.custom-build-script == '' }}
-        run: 
-          mvn -B clean package 
+          repository: "Le-Hoang-Thinh-The-Automationist/pfh-pipeline"
+          ref: "feature/2-pipeline-feat-add-a-compatible-cis-build-test-delivery-for-frontend"
+          path: pipeline
+
+      - name: Read Configuration
+        id: config
+        uses: pietrobolcato/action-read-yaml@1.1.0
+        with:
+          config: ./${{  inputs.service-name }}/cicd-config.yml
+
+      - name: Maven Package Management
+        if: ${{ steps.config.outputs['ci_config.package_management.mvn.enabled'] == 'true' }}
+        uses: ./pipeline/.github/actions/build-test-delivery/dependencies/installation/mvn
+        with:
+          java-version: ${{ steps.config.outputs['ci_config.package_management.mvn.java_version'] }}
+          service-name: ${{ inputs.service-name }}
+
+      - name: Nodes Package Management
+        if: ${{ steps.config.outputs['ci_config.package_management.npm.enabled'] == 'true' }}
+        uses: ./pipeline/.github/actions/build-test-delivery/dependencies/installation/npm
+        with:
+          node-version: ${{ steps.config.outputs['ci_config.package_management.npm.node_version'] }}
+          service-name: ${{ inputs.service-name }}
+
       # [Parallel Test Suite Execution]-[AC.2]: Fail fast mechanism is depend on the input custom code
       - name: Run custom build script
         if: ${{ inputs.custom-build-script != '' }}
-        run: 
-          bash ${{ inputs.custom-build-script }}
+        run: bash ${{ inputs.custom-build-script }}
 
-      - name: Containerized application with Docker
-        run:
-          # [Automated Build & Test Execution]-[AC.6]: Build Docker image with tag contains git SHA
-          docker build -t ${{ inputs.registry }}:${{ github.sha }} .
-        working-directory: "./${{ inputs.service-name }}"
-
-      # [Fast Feedback at Commit Stage]-[AC.4]: Image size display here
-      - name: Docker image size
-        run: |
-          #!/bin/bash
-
-          docker history ${{ inputs.registry }}:${{ github.sha }}
-          echo
-          echo "Total Docker image size: $(docker image inspect ${{ inputs.registry }}:${{ github.sha }} --format='{{.Size}}' | numfmt --to=iec)"
-        working-directory: "./${{ inputs.service-name }}"
-      
-      # [Fast Feedback at Commit Stage]-[AC.6]: Image size display here
-      - name: Clean docker image after build
-        run: 
-          docker rmi ${{ inputs.registry }}:${{ github.sha }}
-        working-directory: "./${{ inputs.service-name }}"
+      - name: Build & Deliver Docker Image
+        if: ${{ steps.config.outputs['ci_config.delivery_management.container.type'] == 'docker' }}
+        uses: ./pipeline/.github/actions/build-test-delivery/delivery/container/docker
+        with:
+          registry-url: ${{ steps.config.outputs['ci_config.delivery_management.container.registry.url'] }}
+          service-name: ${{ inputs.service-name }}

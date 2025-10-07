@@ -1,0 +1,36 @@
+name: "NPM installation"
+description: "Runs an npm install"
+
+inputs:
+  node-version:
+    description: Node version
+    required: true
+    default: "21"
+
+  service-name:
+    description: Service to run
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    # [Automated Build & Test Execution]-[AC.3]: Build must finish fast → caching + container keeps runtime < 5 min
+    - name: Set up caching for npm dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.npm
+        # Hashing package-lock.json ensures cache refresh when dependencies change
+        key: npm-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          npm-
+
+    # [Fast Feedback at Commit Stage]-[AC.4]: Trash dependencies detection, any unused packages will be displayed here
+    - name: Dependencies installation with npm
+      run: npm ci
+      shell: bash
+      working-directory: "./${{ inputs.service-name }}"

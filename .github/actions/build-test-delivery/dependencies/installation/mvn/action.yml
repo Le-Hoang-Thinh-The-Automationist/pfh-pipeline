@@ -1,0 +1,38 @@
+name: "Maven installation"
+description: "Runs a Maven installation"
+
+inputs:
+  java-version:
+    description: Java version 
+    required: true
+    default: "21"
+
+  service-name:
+    description: Service to run 
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: ${{ inputs.java-version }}
+
+    # [Automated Build & Test Execution]-[AC.3]: Build must finish fast → caching + container keeps runtime < 5 min
+    - name: Set up caching for Maven dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2/repository
+        # Hashing pom.xml's content -> If content
+        # changes, mean the dependency must also change
+        key: maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+            maven-
+
+    # [Fast Feedback at Commit Stage]-[AC.4]: Trash dependencies detection, any unused packages will be displayed here
+    - name: Dependencies installation with Maven
+      run: mvn dependency:resolve
+      shell: bash
+      working-directory: "./${{ inputs.service-name }}"
