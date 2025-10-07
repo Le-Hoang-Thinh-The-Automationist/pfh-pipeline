@@ -33,7 +33,7 @@ runs:
       shell: bash
       run:
         # [Automated Build & Test Execution]-[AC.6]: Build Docker image with tag contains git SHA
-        docker build -t ${{ steps.set-image.outputs.image-name }}:${{ github.sha }} .
+        docker build -t ${{ steps.set-image-name.outputs.image-name }}:${{ github.sha }} .
       working-directory: "./${{ inputs.service-name }}"
 
     # [Fast Feedback at Commit Stage]-[AC.4]: Image size display here
@@ -42,13 +42,13 @@ runs:
       run: |
         #!/bin/bash
 
-        docker history ${{ steps.set-image.outputs.image-name }}:${{ github.sha }}
+        docker history ${{ steps.set-image-name.outputs.image-name }}:${{ github.sha }}
         echo
-        echo "Total Docker image size: $(docker image inspect ${{ steps.set-image.outputs.image-name }}:${{ github.sha }} --format='{{.Size}}' | numfmt --to=iec)"
+        echo "Total Docker image size: $(docker image inspect ${{ steps.set-image-name.outputs.image-name }}:${{ github.sha }} --format='{{.Size}}' | numfmt --to=iec)"
       working-directory: "./${{ inputs.service-name }}"
 
     # [Fast Feedback at Commit Stage]-[AC.6]: Image size display here
     - name: Clean docker image after build
       shell: bash
-      run: docker rmi ${{ steps.set-image.outputs.image-name }}:${{ github.sha }}
+      run: docker rmi ${{ steps.set-image-name.outputs.image-name }}:${{ github.sha }}
       working-directory: "./${{ inputs.service-name }}"
