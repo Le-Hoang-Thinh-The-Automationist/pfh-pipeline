@@ -29,11 +29,6 @@ on:
         type: string
         required: false
 
-      registry:
-        description: "Enable container registry access (true/false)"
-        type: string
-        required: false
-        default: "false"
       report:
         description: "Enable regression report upload (true/false)"
         type: boolean
@@ -138,23 +133,9 @@ jobs:
         if: ${{ inputs.custom-build-script != '' }}
         run: bash ${{ inputs.custom-build-script }}
 
-      - name: Containerized application with Docker
-        run:
-          # [Automated Build & Test Execution]-[AC.6]: Build Docker image with tag contains git SHA
-          docker build -t ${{ inputs.registry }}:${{ github.sha }} .
-        working-directory: "./${{ inputs.service-name }}"
-
-      # [Fast Feedback at Commit Stage]-[AC.4]: Image size display here
-      - name: Docker image size
-        run: |
-          #!/bin/bash
-
-          docker history ${{ inputs.registry }}:${{ github.sha }}
-          echo
-          echo "Total Docker image size: $(docker image inspect ${{ inputs.registry }}:${{ github.sha }} --format='{{.Size}}' | numfmt --to=iec)"
-        working-directory: "./${{ inputs.service-name }}"
-
-      # [Fast Feedback at Commit Stage]-[AC.6]: Image size display here
-      - name: Clean docker image after build
-        run: docker rmi ${{ inputs.registry }}:${{ github.sha }}
-        working-directory: "./${{ inputs.service-name }}"
+      - name: Build & Deliver Docker Image
+        if: ${{ steps.config.outputs['ci_config.delivery_management.container.type'] == 'docker' }}
+        uses: ./pipeline/.github/actions/build-test-delivery/delivery/container/docker
+        with:
+          registry-url: ${{ steps.config.outputs['ci_config.delivery_management.container.registry.url'] }}
+          service-name: ${{ inputs.service-name }}

@@ -1,0 +1,54 @@
+name: "Build Docker"
+description: "Build Docker image for delivery"
+
+inputs:
+  registry-url:
+    description: "Enable container registry access (true/false)"
+    required: true
+
+  push:
+    description: "Should be push to the registry or not"
+    required: false
+    default: 'false'
+
+  service-name:
+    description: Service to run 
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: The full name of docker image
+      shell: bash
+      id: set-image-name
+      run: |
+          REGISTRY_URL=${{ inputs.registry-url }}
+          if [ -n "$REGISTRY_URL" ]; then
+            echo "image-name=${{ inputs.registry-url }}/${{ inputs.service-name }}" >> $GITHUB_OUTPUT
+          else
+            echo "image-name=${{ inputs.service-name }}" >> $GITHUB_OUTPUT
+          fi
+
+    - name: Containerized application with Docker
+      shell: bash
+      run:
+        # [Automated Build & Test Execution]-[AC.6]: Build Docker image with tag contains git SHA
+        docker build -t ${{ steps.set-image.outputs.image-name }}:${{ github.sha }} .
+      working-directory: "./${{ inputs.service-name }}"
+
+    # [Fast Feedback at Commit Stage]-[AC.4]: Image size display here
+    - name: Docker image size
+      shell: bash
+      run: |
+        #!/bin/bash
+
+        docker history ${{ steps.set-image.outputs.image-name }}:${{ github.sha }}
+        echo
+        echo "Total Docker image size: $(docker image inspect ${{ steps.set-image.outputs.image-name }}:${{ github.sha }} --format='{{.Size}}' | numfmt --to=iec)"
+      working-directory: "./${{ inputs.service-name }}"
+
+    # [Fast Feedback at Commit Stage]-[AC.6]: Image size display here
+    - name: Clean docker image after build
+      shell: bash
+      run: docker rmi ${{ steps.set-image.outputs.image-name }}:${{ github.sha }}
+      working-directory: "./${{ inputs.service-name }}"
