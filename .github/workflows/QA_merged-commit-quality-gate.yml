@@ -28,7 +28,7 @@ on:
       custom-build-script:
         description: Custom script to build
         type: string
-        required: false    
+        required: false
 
     secrets:
       deploy_token:
@@ -51,27 +51,26 @@ jobs:
 
   # 🔍 Stage 2: Build & Compile & Testing
   # [New Merged Quality Healthcheck]-[AC.2]:  Full test suite for functionality and component test
-  # [New Merged Quality Healthcheck]-[AC.3]:  Build SW and packaging them sucessfully, detail 
+  # [New Merged Quality Healthcheck]-[AC.3]:  Build SW and packaging them sucessfully, detail
   #                                           implementation should be checked in the 'uses'
   build-test:
     uses: ./.github/workflows/_build-test-stage.yml
     with:
-      runner:               ubuntu-latest
-      registry:             false
-      report:               false
-      service-name:         ${{ inputs.service-name }}
-      custom-test-script:   ${{ inputs.custom-test-script }}
-      custom-build-script:  ${{ inputs.custom-build-script }}
+      runner: ubuntu-latest
+      report: false
+      service-name: ${{ inputs.service-name }}
+      custom-test-script: ${{ inputs.custom-test-script }}
+      custom-build-script: ${{ inputs.custom-build-script }}
 
   # 🔐 Stage 3: Security & Compliance Gate
-  # [[New Merged Quality Healthcheck]-[AC.4.1]: (boilerplate) Dependency vulnerability checks and license compliance 
+  # [[New Merged Quality Healthcheck]-[AC.4.1]: (boilerplate) Dependency vulnerability checks and license compliance
   compliance-check:
-    needs: 
+    needs:
       - source-validation
       - build-test
     uses: ./.github/workflows/_security-compliance-stage.yml
     with:
-      runner:               ubuntu-latest
+      runner: ubuntu-latest
 
   # 📦 Stage 4: Artifact Management
   artifact-handling:
@@ -83,10 +82,10 @@ jobs:
         run: echo "Push Docker Image to Registry"
 
       - name: Save Test report to Artifact
-        run: echo "Save Test report to Artifact" 
+        run: echo "Save Test report to Artifact"
 
       - name: Save Security Audit log to Artifact
-        run: echo "Save Security Audit log to Artifact" 
+        run: echo "Save Security Audit log to Artifact"
 
   # 📦 Stage 5: Deployment
   # [[New Merged Quality Healthcheck]-[AC.5.1]: Deployment should be run only when trigger manually (boilerplate)

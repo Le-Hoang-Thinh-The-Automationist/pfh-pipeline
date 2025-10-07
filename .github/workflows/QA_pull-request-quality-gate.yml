@@ -32,7 +32,7 @@ on:
       custom-build-script:
         description: Custom script to build
         type: string
-        required: false    
+        required: false
 
     secrets:
       deploy_token:
@@ -60,12 +60,11 @@ jobs:
   build-test:
     uses: ./.github/workflows/_build-test-stage.yml
     with:
-      runner:               ubuntu-latest
-      registry:             false
-      report:               false
-      service-name:         ${{ inputs.service-name }}
-      custom-test-script:   ${{ inputs.custom-test-script }}
-      custom-build-script:  ${{ inputs.custom-build-script }}
+      runner: ubuntu-latest
+      report: false
+      service-name: ${{ inputs.service-name }}
+      custom-test-script: ${{ inputs.custom-test-script }}
+      custom-build-script: ${{ inputs.custom-build-script }}
 
   # [Mandatory Checklist at PR into QA]-[AC.7.1]: Automatically add PIC for QA branch to PR's review if not already (boilerplate)
   mandatory-pr-reviewers:
@@ -96,7 +95,7 @@ jobs:
         run: echo "Push Docker Image to Registry"
 
       - name: Save Test report to Artifact
-        run: echo "Save Test report to Artifact" 
+        run: echo "Save Test report to Artifact"
 
       - name: Save Security Audit log to Artifact
         run: echo "Save Security Audit log to Artifact"
